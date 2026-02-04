@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>方法权重 - 大乐透分析预测系统</title>
+</head>
+<body>
+<section>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-pie-chart me-2"></i>预测方法权重分布
+                </div>
+                <div class="card-body">
+                    <div id="weightPieChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-bar-chart me-2"></i>命中率对比
+                </div>
+                <div class="card-body">
+                    <div id="hitRateChart" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-table me-2"></i>方法权重详情</span>
+                    <button class="btn btn-warning btn-sm" onclick="resetWeights()">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>重置权重
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>方法</th>
+                                    <th>当前权重</th>
+                                    <th>命中率(EMA)</th>
+                                    <th>实际命中率</th>
+                                    <th>总预测数</th>
+                                    <th>命中次数</th>
+                                    <th>权重条</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="mw : ${methodWeights}">
+                                    <td>
+                                        <strong th:text="${mw.methodName ?: mw.methodCode}">热号优先</strong>
+                                        <br>
+                                        <small class="text-muted" th:text="${mw.methodCode}">HOT</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary" 
+                                              th:text="${#numbers.formatDecimal((mw.weight ?: 0.2) * 100, 1, 2) + '%'}">20.00%</span>
+                                    </td>
+                                    <td th:text="${#numbers.formatDecimal((mw.hitRate ?: 0) * 100, 1, 2) + '%'}">0.00%</td>
+                                    <td th:text="${#numbers.formatDecimal(mw.actualHitRate * 100, 1, 2) + '%'}">0.00%</td>
+                                    <td th:text="${mw.totalPredictions ?: 0}">0</td>
+                                    <td th:text="${mw.totalHits ?: 0}">0</td>
+                                    <td style="width: 200px;">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 th:style="'width: ' + ${(mw.weight ?: 0.2) * 100} + '%'"
+                                                 th:attr="aria-valuenow=${(mw.weight ?: 0.2) * 100}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-info-circle me-2"></i>说明
+                </div>
+                <div class="card-body">
+                    <h6>持续学习机制</h6>
+                    <ul>
+                        <li><strong>权重</strong>：各预测方法的重要性占比，所有方法权重之和为100%</li>
+                        <li><strong>命中率(EMA)</strong>：使用指数移动平均平滑后的命中率，避免单次结果影响过大</li>
+                        <li><strong>命中判定</strong>：前区命中≥3个 或 后区命中≥1个</li>
+                    </ul>
+                    <h6>权重调整过程</h6>
+                    <ol>
+                        <li>在预测页面使用任意方法生成预测并保存</li>
+                        <li>开奖后系统自动验证预测结果</li>
+                        <li>使用EMA(α=0.1)更新各方法的平滑命中率</li>
+                        <li>根据命中率重新归一化权重</li>
+                        <li>表现好的方法权重自动增加，用于自适应预测</li>
+                    </ol>
+                    <h6 class="mt-3">自适应预测原理</h6>
+                    <p class="small text-muted mb-0">
+                        自适应预测会根据各方法的当前权重，加权融合所有方法的评分来选号。
+                        权重越高的方法对最终选号的影响越大，从而实现"学习"效果。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM加载完成');
+        console.log('ECharts 是否加载:', typeof echarts !== 'undefined');
+        
+        setTimeout(function() {
+            console.log('延迟初始化图表...');
+            loadCharts();
+        }, 300);
+    });
+    
+    function loadCharts() {
+        console.log('开始加载图表数据...');
+        console.log('ECharts版本:', echarts ? echarts.version : '未加载');
+        
+        var pieContainer = document.getElementById('weightPieChart');
+        var barContainer = document.getElementById('hitRateChart');
+        
+        console.log('容器检查 - 饼图容器:', pieContainer);
+        console.log('容器检查 - 柱状图容器:', barContainer);
+        
+        if (pieContainer) {
+            console.log('饼图容器尺寸:', pieContainer.offsetWidth, 'x', pieContainer.offsetHeight);
+            console.log('饼图容器样式:', pieContainer.style.cssText);
+            pieContainer.style.minHeight = '350px';
+        }
+        
+        if (barContainer) {
+            console.log('柱状图容器尺寸:', barContainer.offsetWidth, 'x', barContainer.offsetHeight);
+            console.log('柱状图容器样式:', barContainer.style.cssText);
+            barContainer.style.minHeight = '350px';
+        }
+        
+        if (!pieContainer || !barContainer) {
+            console.error('图表容器不存在');
+            alert('图表容器未找到');
+            return;
+        }
+        
+        if (typeof echarts === 'undefined') {
+            console.error('ECharts 未加载');
+            alert('ECharts 库未加载，请检查网络连接');
+            return;
+        }
+        
+        fetch('/learning/api/weights/chart')
+            .then(response => {
+                console.log('API响应状态:', response.status);
+                if (!response.ok) {
+                    throw new Error('API请求失败: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('图表数据:', data);
+                
+                if (!data || !data.labels || data.labels.length === 0) {
+                    console.error('数据为空或格式错误');
+                    alert('图表数据为空，请稍后重试');
+                    return;
+                }
+                
+                console.log('准备初始化饼图...');
+                var pieChart;
+                try {
+                    pieChart = echarts.init(pieContainer);
+                    console.log('饼图实例创建成功');
+                } catch (e) {
+                    console.error('饼图初始化失败:', e);
+                    alert('饼图初始化失败: ' + e.message);
+                    return;
+                }
+                
+                var pieData = [];
+                for (var i = 0; i < data.labels.length; i++) {
+                    pieData.push({
+                        name: data.labels[i],
+                        value: (data.weights[i] * 100).toFixed(2)
+                    });
+                }
+                
+                console.log('饼图数据:', pieData);
+                
+                pieChart.setOption({
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c}%'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left'
+                    },
+                    series: [{
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{b}\n{c}%'
+                        },
+                        data: pieData
+                    }]
+                });
+                
+                console.log('饼图设置完成');
+                
+                setTimeout(function() {
+                    console.log('准备初始化柱状图...');
+                    var barChart;
+                    try {
+                        barChart = echarts.init(barContainer);
+                        console.log('柱状图实例创建成功');
+                    } catch (e) {
+                        console.error('柱状图初始化失败:', e);
+                        return;
+                    }
+                    
+                    barChart.setOption({
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' }
+                        },
+                        legend: {
+                            data: ['命中率(%)', '预测次数']
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: data.labels
+                        },
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: '命中率(%)',
+                                max: 100
+                            },
+                            {
+                                type: 'value',
+                                name: '预测次数'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '命中率(%)',
+                                type: 'bar',
+                                data: data.hitRates.map(function(v) { return v.toFixed(2); }),
+                                itemStyle: { color: '#e63946' }
+                            },
+                            {
+                                name: '预测次数',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: data.predictions,
+                                itemStyle: { color: '#457b9d' }
+                            }
+                        ]
+                    });
+                    
+                    console.log('柱状图设置完成');
+                    console.log('所有图表渲染完成');
+                }, 100);
+                
+                window.addEventListener('resize', function() {
+                    if (pieChart) pieChart.resize();
+                    if (barChart) barChart.resize();
+                });
+            })
+            .catch(error => {
+                console.error('加载图表数据失败:', error);
+                alert('加载图表数据失败: ' + error.message);
+            });
+    }
+    
+    function resetWeights() {
+        if (!confirm('确定要重置所有权重为初始值吗？')) return;
+        
+        fetch('/learning/api/weights/reset', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                }
+            });
+    }
+    
+
+</script>
+</body>
+</html>

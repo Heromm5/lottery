@@ -1,0 +1,316 @@
+{
+  "version": "1.0.0",
+  "lockfileVersion": 1,
+  "packages": {
+    "@obra/skill-using-superpowers#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-using-superpowers/3.4.1.tar.gz",
+      "integrity": "sha256-3eb09ae7aa6ffd5efaf812336ef7451a519f4629d5389515f417661a0b7eb12e",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-using-superpowers/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-brainstorming#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-brainstorming/3.4.1.tar.gz",
+      "integrity": "sha256-12c0399ea0a39452cbc2b979536f5c354eb4cbb00f91651be170d93f813f02a6",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-brainstorming/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-writing-plans#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-writing-plans/3.4.1.tar.gz",
+      "integrity": "sha256-ec7e536a5e6f5d246f4945711a71c916f5483ff301020f8c11fba07ed31c68e2",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-writing-plans/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-executing-plans#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-executing-plans/3.4.1.tar.gz",
+      "integrity": "sha256-e58074c6dfaff4bb688d9be6918ed534effeea77e027090018c9752b67555bc0",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-executing-plans/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-test-driven-development#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-test-driven-development/3.4.1.tar.gz",
+      "integrity": "sha256-9a1dc73bc64dd748e85845cdbb62c5b9f27409435d25055e177bc1b81bb8d213",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-test-driven-development/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-systematic-debugging#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-systematic-debugging/3.4.1.tar.gz",
+      "integrity": "sha256-f284cfad11e07d4ce167af1becd8baa9619e688274c78cf92518ca6b18d14eef",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-systematic-debugging/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-requesting-code-review#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-requesting-code-review/3.4.1.tar.gz",
+      "integrity": "sha256-9ca1781214d63f7420c3b2ec8e4be6503a99e9ae89e0b6c25bf9a94af6abcf97",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-requesting-code-review",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-receiving-code-review#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-receiving-code-review/3.4.1.tar.gz",
+      "integrity": "sha256-fbe9771464ef3c8fcc007c5b64df05cd1aab71fbf09f2272f36fc2d83667f4cb",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-receiving-code-review/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-verification-before-completion#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-verification-before-completion/3.4.1.tar.gz",
+      "integrity": "sha256-fba774fe37fe740946f91a340b16663a450545c90c9109dbcb1b3817302b597e",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-verification-before-completion/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-using-git-worktrees#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-using-git-worktrees/3.4.1.tar.gz",
+      "integrity": "sha256-c92aeeb56463d0e99ccfde3260bdb714635971f098eeb229ed35a567a942b008",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-using-git-worktrees/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-subagent-driven-development#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-subagent-driven-development/3.4.1.tar.gz",
+      "integrity": "sha256-01d7b6dd9c03d03cea723e7021399fbca6ddd1f1ffb11bcf4ef2f5691a27c122",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-subagent-driven-development/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-dispatching-parallel-agents#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-dispatching-parallel-agents/3.4.1.tar.gz",
+      "integrity": "sha256-2acd3d0c42cb7b634467bf195508643866e3525e519d2391b6280550b67478c7",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-dispatching-parallel-agents/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-root-cause-tracing#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-root-cause-tracing/3.4.1.tar.gz",
+      "integrity": "sha256-0d5e121e1b73f28ab3ed69f37e51ff01064120eb31a340ff4966908f91c8aff7",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-root-cause-tracing",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-defense-in-depth#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-defense-in-depth/3.4.1.tar.gz",
+      "integrity": "sha256-0ebe35e8078c250108045799ed1875ccaab117a7259d878d43e94c49bc30c9cb",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-defense-in-depth/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-condition-based-waiting#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-condition-based-waiting/3.4.1.tar.gz",
+      "integrity": "sha256-12651a43e19f34d2e47c1373011b27f4d40629b8942e052bb59b976ec5cdd80a",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-condition-based-waiting",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-testing-anti-patterns#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-testing-anti-patterns/3.4.1.tar.gz",
+      "integrity": "sha256-3166d17a6b954347ef8d3b3eb52cb0f77a57fb9cd24c5bf2e29dcbbd8991a373",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-testing-anti-patterns/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-testing-skills-with-subagents#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-testing-skills-with-subagents/3.4.1.tar.gz",
+      "integrity": "sha256-509089aeb85eea70aa2ef496ada753c42c9456564a5b2befb23b20cb0ca592c5",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-testing-skills-with-subagents",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-writing-skills#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-writing-skills/3.4.1.tar.gz",
+      "integrity": "sha256-a7cf67c385a6dba264045d2aa367f18362563baf2572930da9430ac35689bdbc",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-writing-skills",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-sharing-skills#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-sharing-skills/3.4.1.tar.gz",
+      "integrity": "sha256-62aea5526392323bfa37903a8cde59d813b022ae416ffa13b2b7548c3c24c703",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-sharing-skills/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    },
+    "@obra/skill-finishing-a-development-branch#claude": {
+      "version": "3.4.1",
+      "resolved": "https://registry.prpm.dev/api/v1/packages/%40obra%2Fskill-finishing-a-development-branch/3.4.1.tar.gz",
+      "integrity": "sha256-7444b1b2d2eeaa56d688fa8a0bf5e76b80fb6036db0825fb95318824e67faeab",
+      "format": "claude",
+      "subtype": "skill",
+      "sourceFormat": "claude",
+      "sourceSubtype": "skill",
+      "installedPath": ".claude/skills/skill-finishing-a-development-branch/SKILL.md",
+      "fromCollection": {
+        "name_slug": "superpowers",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "generated": "2026-01-23T13:39:03.047Z",
+  "collections": {
+    "superpowers": {
+      "name_slug": "superpowers",
+      "version": "1.0.0",
+      "installedAt": "2026-01-23T13:39:03.047Z",
+      "packages": [
+        "@obra/skill-using-superpowers",
+        "@obra/skill-brainstorming",
+        "@obra/skill-writing-plans",
+        "@obra/skill-executing-plans",
+        "@obra/skill-test-driven-development",
+        "@obra/skill-systematic-debugging",
+        "@obra/skill-requesting-code-review",
+        "@obra/skill-receiving-code-review",
+        "@obra/skill-verification-before-completion",
+        "@obra/skill-using-git-worktrees",
+        "@obra/skill-subagent-driven-development",
+        "@obra/skill-dispatching-parallel-agents",
+        "@obra/skill-root-cause-tracing",
+        "@obra/skill-defense-in-depth",
+        "@obra/skill-condition-based-waiting",
+        "@obra/skill-testing-anti-patterns",
+        "@obra/skill-testing-skills-with-subagents",
+        "@obra/skill-writing-skills",
+        "@obra/skill-sharing-skills",
+        "@obra/skill-finishing-a-development-branch"
+      ]
+    }
+  }
+}

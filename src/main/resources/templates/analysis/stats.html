@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>综合统计 - 大乐透分析预测系统</title>
+</head>
+<body>
+<main>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-dark mb-3"><i class="bi bi-pie-chart me-2"></i>综合统计分析</h2>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <!-- 热号冷号 -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-fire me-2 text-danger"></i>前区热号 (近30期高频)</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <span th:each="num : ${hotFront}" class="ball ball-front" th:text="${num}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-snow me-2 text-info"></i>前区冷号 (近30期低频)</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <span th:each="num : ${coldFront}" class="ball" style="background:#6c757d;color:white;" th:text="${num}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-fire me-2 text-danger"></i>后区热号</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <span th:each="num : ${hotBack}" class="ball ball-back" th:text="${num}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-snow me-2 text-info"></i>后区冷号</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <span th:each="num : ${coldBack}" class="ball" style="background:#6c757d;color:white;" th:text="${num}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 奇偶比 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">奇偶比分布</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="oddEvenChart" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 和值分布 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">和值分布</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="sumChart" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 连号分布 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">连号分布</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="consecutiveChart" style="height: 250px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        var oddEvenStats = [[${oddEvenStats}]];
+        var sumStats = [[${sumStats}]];
+        var consecutiveStats = [[${consecutiveStats}]];
+        
+        window.addEventListener('load', function() {
+            // 奇偶比图表
+            var oddEvenChart = echarts.init(document.getElementById('oddEvenChart'));
+            oddEvenChart.setOption({
+                tooltip: { trigger: 'item' },
+                series: [{
+                    type: 'pie',
+                    radius: '70%',
+                    data: Object.entries(oddEvenStats).map(([name, value]) => ({
+                        name: name,
+                        value: value
+                    })),
+                    label: { formatter: '{b}: {c}' }
+                }],
+                color: ['#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#1d3557', '#264653']
+            });
+            
+            // 和值分布图表
+            var sumChart = echarts.init(document.getElementById('sumChart'));
+            sumChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(sumStats)
+                },
+                yAxis: { type: 'value' },
+                series: [{
+                    type: 'bar',
+                    data: Object.values(sumStats),
+                    itemStyle: { color: '#457b9d' }
+                }]
+            });
+            
+            // 连号分布图表
+            var consecutiveChart = echarts.init(document.getElementById('consecutiveChart'));
+            consecutiveChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(consecutiveStats).map(k => k + '组连号'),
+                    axisLabel: { interval: 0 }
+                },
+                yAxis: { type: 'value' },
+                series: [{
+                    type: 'bar',
+                    data: Object.values(consecutiveStats),
+                    itemStyle: { color: '#2a9d8f' }
+                }]
+            });
+            
+            window.addEventListener('resize', () => {
+                oddEvenChart.resize();
+                sumChart.resize();
+                consecutiveChart.resize();
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

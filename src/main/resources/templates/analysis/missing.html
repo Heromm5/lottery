@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>遗漏分析 - 大乐透分析预测系统</title>
+</head>
+<body>
+<main>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-dark mb-3"><i class="bi bi-hourglass-split me-2"></i>号码遗漏分析</h2>
+            </div>
+        </div>
+
+        <!-- 前区遗漏 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-circle-fill text-danger me-2"></i>前区遗漏分析 (1-35)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="frontMissingChart" style="height: 400px;"></div>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>号码</th>
+                                        <th th:each="m : ${frontMissing}" th:text="${m.number}" class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>当前遗漏</td>
+                                        <td th:each="m : ${frontMissing}" class="text-center">
+                                            <span th:text="${m.currentMissing}" 
+                                                  th:classappend="${m.currentMissing >= m.avgMissing ? 'text-danger fw-bold' : ''}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>平均遗漏</td>
+                                        <td th:each="m : ${frontMissing}" th:text="${#numbers.formatDecimal(m.avgMissing, 1, 1)}" class="text-center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>最大遗漏</td>
+                                        <td th:each="m : ${frontMissing}" th:text="${m.maxMissing}" class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 后区遗漏 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-circle-fill text-primary me-2"></i>后区遗漏分析 (1-12)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="backMissingChart" style="height: 300px;"></div>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>号码</th>
+                                        <th th:each="m : ${backMissing}" th:text="${m.number}" class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>当前遗漏</td>
+                                        <td th:each="m : ${backMissing}" class="text-center">
+                                            <span th:text="${m.currentMissing}" 
+                                                  th:classappend="${m.currentMissing >= m.avgMissing ? 'text-danger fw-bold' : ''}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>平均遗漏</td>
+                                        <td th:each="m : ${backMissing}" th:text="${#numbers.formatDecimal(m.avgMissing, 1, 1)}" class="text-center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>最大遗漏</td>
+                                        <td th:each="m : ${backMissing}" th:text="${m.maxMissing}" class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        var frontData = [[${frontMissing}]];
+        var backData = [[${backMissing}]];
+        
+        window.addEventListener('load', function() {
+            // 前区遗漏图表
+            var frontChart = echarts.init(document.getElementById('frontMissingChart'));
+            frontChart.setOption({
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['当前遗漏', '平均遗漏', '最大遗漏'] },
+                xAxis: {
+                    type: 'category',
+                    data: frontData.map(m => m.number),
+                    axisLabel: { interval: 0 }
+                },
+                yAxis: { type: 'value', name: '遗漏期数' },
+                series: [
+                    {
+                        name: '当前遗漏',
+                        type: 'bar',
+                        data: frontData.map(m => m.currentMissing),
+                        itemStyle: { color: '#e63946' }
+                    },
+                    {
+                        name: '平均遗漏',
+                        type: 'line',
+                        data: frontData.map(m => m.avgMissing),
+                        itemStyle: { color: '#2a9d8f' }
+                    },
+                    {
+                        name: '最大遗漏',
+                        type: 'line',
+                        data: frontData.map(m => m.maxMissing),
+                        itemStyle: { color: '#f4a261' },
+                        lineStyle: { type: 'dashed' }
+                    }
+                ]
+            });
+            
+            // 后区遗漏图表
+            var backChart = echarts.init(document.getElementById('backMissingChart'));
+            backChart.setOption({
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['当前遗漏', '平均遗漏', '最大遗漏'] },
+                xAxis: {
+                    type: 'category',
+                    data: backData.map(m => m.number)
+                },
+                yAxis: { type: 'value', name: '遗漏期数' },
+                series: [
+                    {
+                        name: '当前遗漏',
+                        type: 'bar',
+                        data: backData.map(m => m.currentMissing),
+                        itemStyle: { color: '#457b9d' }
+                    },
+                    {
+                        name: '平均遗漏',
+                        type: 'line',
+                        data: backData.map(m => m.avgMissing),
+                        itemStyle: { color: '#2a9d8f' }
+                    },
+                    {
+                        name: '最大遗漏',
+                        type: 'line',
+                        data: backData.map(m => m.maxMissing),
+                        itemStyle: { color: '#f4a261' },
+                        lineStyle: { type: 'dashed' }
+                    }
+                ]
+            });
+            
+            window.addEventListener('resize', () => {
+                frontChart.resize();
+                backChart.resize();
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

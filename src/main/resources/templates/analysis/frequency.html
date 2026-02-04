@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>频率分析 - 大乐透分析预测系统</title>
+</head>
+<body>
+<main>
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-dark mb-3"><i class="bi bi-bar-chart-line me-2"></i>号码频率分析</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <form class="row g-3 align-items-center" method="get">
+                            <div class="col-auto">
+                                <label class="col-form-label">统计期数：</label>
+                            </div>
+                            <div class="col-auto">
+                                <select name="recentCount" class="form-select" onchange="this.form.submit()">
+                                    <option value="0" th:selected="${recentCount == 0}">全部数据</option>
+                                    <option value="30" th:selected="${recentCount == 30}">近30期</option>
+                                    <option value="50" th:selected="${recentCount == 50}">近50期</option>
+                                    <option value="100" th:selected="${recentCount == 100}">近100期</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 前区频率 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-circle-fill text-danger me-2"></i>前区号码频率 (1-35)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="frontChart" style="height: 400px;"></div>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>号码</th>
+                                        <th th:each="f : ${frontFrequency}" th:text="${f.number}" class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>出现次数</td>
+                                        <td th:each="f : ${frontFrequency}" th:text="${f.count}" class="text-center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>出现频率</td>
+                                        <td th:each="f : ${frontFrequency}" th:text="${#numbers.formatDecimal(f.frequency, 1, 1) + '%'}" class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 后区频率 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-circle-fill text-primary me-2"></i>后区号码频率 (1-12)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="backChart" style="height: 300px;"></div>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>号码</th>
+                                        <th th:each="f : ${backFrequency}" th:text="${f.number}" class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>出现次数</td>
+                                        <td th:each="f : ${backFrequency}" th:text="${f.count}" class="text-center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>出现频率</td>
+                                        <td th:each="f : ${backFrequency}" th:text="${#numbers.formatDecimal(f.frequency, 1, 1) + '%'}" class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        var frontData = [[${frontFrequency}]];
+        var backData = [[${backFrequency}]];
+        
+        window.addEventListener('load', function() {
+            // 前区图表
+            var frontChart = echarts.init(document.getElementById('frontChart'));
+            frontChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: frontData.map(f => f.number),
+                    axisLabel: { interval: 0 }
+                },
+                yAxis: { type: 'value', name: '出现次数' },
+                series: [{
+                    type: 'bar',
+                    data: frontData.map(f => f.count),
+                    itemStyle: {
+                        color: function(params) {
+                            var colors = ['#e63946', '#f4a261', '#2a9d8f', '#457b9d', '#1d3557'];
+                            return colors[params.dataIndex % colors.length];
+                        }
+                    },
+                    label: { show: true, position: 'top', fontSize: 10 }
+                }]
+            });
+            
+            // 后区图表
+            var backChart = echarts.init(document.getElementById('backChart'));
+            backChart.setOption({
+                tooltip: { trigger: 'axis' },
+                xAxis: {
+                    type: 'category',
+                    data: backData.map(f => f.number)
+                },
+                yAxis: { type: 'value', name: '出现次数' },
+                series: [{
+                    type: 'bar',
+                    data: backData.map(f => f.count),
+                    itemStyle: { color: '#457b9d' },
+                    label: { show: true, position: 'top' }
+                }]
+            });
+            
+            window.addEventListener('resize', () => {
+                frontChart.resize();
+                backChart.resize();
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

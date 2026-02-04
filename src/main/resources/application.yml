@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lottery-java
+  datasource:
+    url: jdbc:mysql://localhost:3306/my_thought?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*.xml
+  type-aliases-package: com.hobart.lottery.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  level:
+    com.hobart.lottery: debug
+
+# 彩票系统配置
+lottery:
+  front:
+    min: 1
+    max: 35
+    count: 5
+  back:
+    min: 1
+    max: 12
+    count: 2
+  analysis:
+    hot-cold-period: 30        # 热号冷号统计期数
+    missing-period: 500        # 遗漏分析期数
+    trend-default-limit: 30    # 走势图默认期数
+    association-period: 200    # 关联分析期数
+    min-support: 0.02          # 关联规则最小支持度
+    min-confidence: 0.3        # 关联规则最小置信度
+  learning:
+    ema-alpha: 0.1             # EMA平滑因子
+    front-hit-threshold: 3     # 前区命中阈值
+    back-hit-threshold: 1      # 后区命中阈值
+    initial-weight: 0.2        # 初始权重
