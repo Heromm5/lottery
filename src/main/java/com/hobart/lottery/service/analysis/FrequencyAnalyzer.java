@@ -3,6 +3,7 @@ package com.hobart.lottery.service.analysis;
 import com.hobart.lottery.config.LotteryConfig;
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.dto.FrequencyDTO;
+import com.hobart.lottery.dto.MissingDTO;
 import com.hobart.lottery.entity.LotteryResult;
 import com.hobart.lottery.service.LotteryService;
 import lombok.RequiredArgsConstructor;
@@ -110,7 +111,7 @@ public class FrequencyAnalyzer {
     public Map<Integer, Double> getNumberScores(NumberZone zone, MissingAnalyzer missingAnalyzer) {
         int period = config.getAnalysis().getHotColdPeriod();
         List<FrequencyDTO> frequencies = calculateFrequency(zone, period);
-        var missings = missingAnalyzer.calculateMissing(zone);
+        List<MissingDTO> missings = missingAnalyzer.calculateMissing(zone);
         
         Map<Integer, Double> scores = new HashMap<>();
         
@@ -120,8 +121,8 @@ public class FrequencyAnalyzer {
         
         for (int num = zone.getMin(); num <= zone.getMax(); num++) {
             final int n = num;
-            var freq = frequencies.stream().filter(f -> f.getNumber() == n).findFirst().orElse(null);
-            var miss = missings.stream().filter(m -> m.getNumber() == n).findFirst().orElse(null);
+            FrequencyDTO freq = frequencies.stream().filter(f -> f.getNumber() == n).findFirst().orElse(null);
+            MissingDTO miss = missings.stream().filter(m -> m.getNumber() == n).findFirst().orElse(null);
             
             double freqScore = 0, missScore = 0;
             

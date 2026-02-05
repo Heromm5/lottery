@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9060
 
 spring:
   application:
@@ -9,12 +9,13 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
-    cache: false
+    hikari:
+      minimum-idle: 5              # 最小空闲连接
+      maximum-pool-size: 20        # 最大连接数
+      idle-timeout: 300000         # 空闲超时 5分钟
+      max-lifetime: 1200000        # 最大存活时间 20分钟
+      connection-timeout: 30000    # 连接超时 30秒
+      pool-name: LotteryHikariCP   # 连接池名称
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml

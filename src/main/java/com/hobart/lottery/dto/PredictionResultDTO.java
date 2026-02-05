@@ -71,15 +71,20 @@ public class PredictionResultDTO {
      * 中奖等级
      */
     private String prizeLevel;
-    
+
+    /**
+     * 预测分数（用于排序选择最优预测）
+     */
+    private Double score;
+
     public static String getMethodDisplayName(String method) {
-        return switch (method) {
-            case "HOT" -> "热号优先";
-            case "MISSING" -> "遗漏回补";
-            case "BALANCED" -> "冷热均衡";
-            case "ML" -> "机器学习";
-            case "ADAPTIVE" -> "自适应预测";
-            default -> method;
-        };
+        switch (method) {
+            case "HOT": return "热号优先";
+            case "MISSING": return "遗漏回补";
+            case "BALANCED": return "冷热均衡";
+            case "ML": return "机器学习";
+            case "ADAPTIVE": return "自适应预测";
+            default: return method;
+        }
     }
 }

@@ -1,0 +1,64 @@
+// ============================================
+// 科技感数据大屏主题 - 变量定义
+// ============================================
+
+// 品牌色
+$primary-color: #667eea;
+$primary-light: #764ba2;
+$primary-glow: rgba(102, 126, 234, 0.5);
+
+// 辅助色
+$accent-cyan: #00f5ff;
+$accent-purple: #bf00ff;
+$accent-green: #00ff88;
+$accent-orange: #ff9500;
+$accent-red: #ff4757;
+
+// 背景色
+$bg-dark: #050510;
+$bg-dark-lighter: #0d0d20;
+$bg-card: rgba(13, 13, 32, 0.85);
+$bg-card-hover: rgba(13, 13, 32, 0.95);
+
+// 边框色
+$border-color: rgba(102, 126, 234, 0.3);
+$border-glow: rgba(102, 126, 234, 0.6);
+
+// 文字色
+$text-primary: #ffffff;
+$text-secondary: rgba(255, 255, 255, 0.7);
+$text-muted: rgba(255, 255, 255, 0.5);
+
+// 字体
+$font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+// 阴影
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+$shadow-glow: 0 0 20px rgba(102, 126, 234, 0.3);
+
+// 圆角
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+
+// 动画
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// 球号颜色
+$ball-front-bg: linear-gradient(135deg, #667eea, #764ba2);
+$ball-back-bg: linear-gradient(135deg, #f093fb, #f5576c);
+$ball-front-color: #ffffff;
+$ball-back-color: #ffffff;
+
+// 响应式断点
+$xs: 576px;
+$sm: 768px;
+$md: 992px;
+$lg: 1200px;
+$xl: 1400px;

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hobart.lottery.dto.AccuracyStatsDTO;
 import com.hobart.lottery.dto.PredictionResultDTO;
+import com.hobart.lottery.dto.VerificationHistoryDTO;
+import com.hobart.lottery.domain.model.PredictionMethod;
 import com.hobart.lottery.entity.LotteryResult;
 import com.hobart.lottery.entity.PredictionAccuracy;
 import com.hobart.lottery.entity.PredictionRecord;
@@ -129,7 +131,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
             dto.setId(record.getId());
             dto.setTargetIssue(record.getTargetIssue());
             dto.setPredictMethod(record.getPredictMethod());
-            dto.setMethodName(PredictionResultDTO.getMethodDisplayName(record.getPredictMethod()));
+            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
             dto.setFrontBalls(predictFront);
             dto.setBackBalls(predictBack);
             dto.setFrontBallsStr(record.getFrontBalls());
@@ -161,8 +163,8 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
      */
     @Transactional
     public void updateAccuracyStats() {
-        // 获取所有预测方法
-        String[] methods = {"HOT", "MISSING", "BALANCED", "ML", "ADAPTIVE"};
+        // 获取所有预测方法（从注册表动态获取，支持扩展）
+        List<String> methods = PredictionMethod.getAllCodes();
 
         for (String method : methods) {
             // 获取该方法的所有已验证记录
@@ -222,7 +224,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
         for (PredictionAccuracy stat : stats) {
             AccuracyStatsDTO dto = new AccuracyStatsDTO();
             dto.setPredictMethod(stat.getPredictMethod());
-            dto.setMethodName(PredictionResultDTO.getMethodDisplayName(stat.getPredictMethod()));
+            dto.setMethodName(PredictionMethod.getDisplayName(stat.getPredictMethod()));
             dto.setTotalPredictions(stat.getTotalPredictions());
             dto.setFrontAvgHit(stat.getFrontAvgHit());
             dto.setBackAvgHit(stat.getBackAvgHit());
@@ -266,18 +268,83 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
     }
 
     /**
-     * 获取所有未验证的期号列表
+     * 获取所有未验证的期号列表（只返回有开奖结果的期号）
      */
     public List<String> getUnverifiedIssues() {
+        // 查询所有未验证的预测记录
         LambdaQueryWrapper<PredictionRecord> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PredictionRecord::getIsVerified, 0)
                 .orderByDesc(PredictionRecord::getTargetIssue);
 
-        return predictionRecordMapper.selectList(wrapper).stream()
+        List<PredictionRecord> unverified = predictionRecordMapper.selectList(wrapper);
+
+        // 过滤出有开奖结果的期号
+        return unverified.stream()
                 .map(PredictionRecord::getTargetIssue)
                 .distinct()
+                .filter(issue -> lotteryService.getByIssue(issue) != null)
                 .sorted((a, b) -> b.compareTo(a))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取验证历史记录（分页）
+     * @param page 页码（从1开始）
+     * @param size 每页大小
+     * @return 验证历史列表
+     */
+    public List<VerificationHistoryDTO> getVerificationHistory(int page, int size) {
+        // 查询已验证的预测记录
+        LambdaQueryWrapper<PredictionRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PredictionRecord::getIsVerified, 1)
+                .orderByDesc(PredictionRecord::getVerifiedAt)
+                .orderByDesc(PredictionRecord::getTargetIssue);
+
+        // 手动分页（因为需要联表查询）
+        int offset = (page - 1) * size;
+        wrapper.last("LIMIT " + offset + ", " + size);
+
+        List<PredictionRecord> records = predictionRecordMapper.selectList(wrapper);
+        List<VerificationHistoryDTO> result = new ArrayList<>();
+
+        for (PredictionRecord record : records) {
+            // 获取该期的实际开奖结果
+            LotteryResult drawResult = lotteryService.getByIssue(record.getTargetIssue());
+
+            VerificationHistoryDTO dto = new VerificationHistoryDTO();
+            dto.setId(record.getId());
+            dto.setTargetIssue(record.getTargetIssue());
+            dto.setPredictMethod(record.getPredictMethod());
+            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
+            dto.setFrontBallsStr(record.getFrontBalls());
+            dto.setBackBallsStr(record.getBackBalls());
+            dto.setFrontHitCount(record.getFrontHitCount());
+            dto.setBackHitCount(record.getBackHitCount());
+            dto.setPrizeLevel(record.getPrizeLevel());
+            dto.setCreatedAt(record.getCreatedAt() != null ? record.getCreatedAt().toString() : "");
+            dto.setVerifiedAt(record.getVerifiedAt() != null ? record.getVerifiedAt().toString() : "");
+
+            if (drawResult != null) {
+                dto.setActualFrontBallsStr(drawResult.getFrontBalls());
+                dto.setActualBackBallsStr(drawResult.getBackBalls());
+            } else {
+                dto.setActualFrontBallsStr("-");
+                dto.setActualBackBallsStr("-");
+            }
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取验证历史记录总数
+     */
+    public int countVerificationHistory() {
+        LambdaQueryWrapper<PredictionRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PredictionRecord::getIsVerified, 1);
+        return Math.toIntExact(predictionRecordMapper.selectCount(wrapper));
     }
 
     /**

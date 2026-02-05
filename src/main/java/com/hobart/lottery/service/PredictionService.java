@@ -1,6 +1,7 @@
 package com.hobart.lottery.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hobart.lottery.domain.model.PredictionMethod;
 import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.entity.PredictionRecord;
 import com.hobart.lottery.mapper.PredictionRecordMapper;
@@ -32,7 +33,12 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
         MISSING("遗漏回补"),
         BALANCED("冷热均衡"),
         ML("机器学习"),
-        ADAPTIVE("自适应预测");
+        ADAPTIVE("自适应预测"),
+        BAYESIAN("贝叶斯预测"),
+        MARKOV("马尔可夫预测"),
+        MONTECARLO("蒙特卡洛预测"),
+        GRADIENT_BOOST("梯度提升预测"),
+        ENSEMBLE("集成预测");
 
         private final String name;
 
@@ -208,7 +214,7 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             dto.setId(record.getId());
             dto.setTargetIssue(targetIssue);
             dto.setPredictMethod(method);
-            dto.setMethodName(PredictionResultDTO.getMethodDisplayName(method));
+            dto.setMethodName(PredictionMethod.getDisplayName(method));
             dto.setFrontBalls(prediction[0]);
             dto.setBackBalls(prediction[1]);
             dto.setFrontBallsStr(record.getFrontBalls());
@@ -225,14 +231,19 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
      * 创建预测器
      */
     private BasePredictor createPredictor(String method) {
-        return switch (method.toUpperCase()) {
-            case "HOT" -> new HotNumberPredictor(analysisService);
-            case "MISSING" -> new MissingPredictor(analysisService);
-            case "BALANCED" -> new BalancedPredictor(analysisService);
-            case "ML" -> new MLPredictor(analysisService, lotteryService);
-            case "ADAPTIVE" -> new AdaptivePredictorWrapper(adaptivePredictor);
-            default -> null;
-        };
+        switch (method.toUpperCase()) {
+            case "HOT": return new HotNumberPredictor(analysisService);
+            case "MISSING": return new MissingPredictor(analysisService);
+            case "BALANCED": return new BalancedPredictor(analysisService);
+            case "ML": return new MLPredictor(analysisService, lotteryService);
+            case "ADAPTIVE": return new AdaptivePredictorWrapper(adaptivePredictor);
+            case "BAYESIAN": return new BayesianPredictor(analysisService, lotteryService);
+            case "MARKOV": return new MarkovPredictor(analysisService, lotteryService);
+            case "MONTECARLO": return new MonteCarloPredictor(analysisService, lotteryService);
+            case "GRADIENT_BOOST": return new GradientBoostPredictor(analysisService, lotteryService);
+            case "ENSEMBLE": return new EnsemblePredictor(analysisService, lotteryService);
+            default: return null;
+        }
     }
 
     /**
@@ -282,7 +293,7 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             dto.setId(record.getId());
             dto.setTargetIssue(record.getTargetIssue());
             dto.setPredictMethod(record.getPredictMethod());
-            dto.setMethodName(PredictionResultDTO.getMethodDisplayName(record.getPredictMethod()));
+            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
             dto.setFrontBalls(record.getFrontBallArray());
             dto.setBackBalls(record.getBackBallArray());
             dto.setFrontBallsStr(record.getFrontBalls());

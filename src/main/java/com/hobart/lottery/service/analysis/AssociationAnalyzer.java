@@ -93,8 +93,12 @@ public class AssociationAnalyzer {
                     double lift = expectedConfidence > 0 ? confidence / expectedConfidence : 0;
                     
                     if (lift > 1) { // 只保留正相关
+                        Set<Integer> set1 = new HashSet<>();
+                        set1.add(num1);
+                        Set<Integer> set2 = new HashSet<>();
+                        set2.add(num2);
                         rules.add(new AssociationRule(
-                            Set.of(num1), Set.of(num2),
+                            set1, set2,
                             support, confidence, lift, zone.getCode().toUpperCase()
                         ));
                     }
@@ -110,8 +114,12 @@ public class AssociationAnalyzer {
                     double lift = expectedConfidence > 0 ? confidence / expectedConfidence : 0;
                     
                     if (lift > 1) {
+                        Set<Integer> set3 = new HashSet<>();
+                        set3.add(num2);
+                        Set<Integer> set4 = new HashSet<>();
+                        set4.add(num1);
                         rules.add(new AssociationRule(
-                            Set.of(num2), Set.of(num1),
+                            set3, set4,
                             support, confidence, lift, zone.getCode().toUpperCase()
                         ));
                     }
@@ -272,8 +280,12 @@ public class AssociationAnalyzer {
             double lift = confidence / expectedConfidence;
             
             if (lift > 1) {
+                Set<Integer> set5 = new HashSet<>();
+                set5.add(prev);
+                Set<Integer> set6 = new HashSet<>();
+                set6.add(curr);
                 rules.add(new AssociationRule(
-                    Set.of(prev), Set.of(curr),
+                    set5, set6,
                     support, confidence, lift, zone.getCode().toUpperCase() + "_SEQ"
                 ));
             }

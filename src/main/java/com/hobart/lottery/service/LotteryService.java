@@ -3,9 +3,13 @@ package com.hobart.lottery.service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hobart.lottery.entity.LotteryResult;
 import com.hobart.lottery.mapper.LotteryResultMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 大乐透数据服务
@@ -14,22 +18,25 @@ import java.util.List;
 public class LotteryService extends ServiceImpl<LotteryResultMapper, LotteryResult> {
 
     /**
-     * 获取最近N期开奖结果
+     * 获取最近N期开奖结果 - 缓存 2 分钟
      */
+    @Cacheable(value = "recentResults", key = "#limit")
     public List<LotteryResult> getRecentResults(int limit) {
         return baseMapper.selectRecentResults(limit);
     }
 
     /**
-     * 获取最新一期开奖结果
+     * 获取最新一期开奖结果 - 缓存 2 分钟
      */
+    @Cacheable(value = "latestResult", key = "'latest'")
     public LotteryResult getLatestResult() {
         return baseMapper.selectLatestResult();
     }
 
     /**
-     * 根据期号查询
+     * 根据期号查询 - 缓存 5 分钟
      */
+    @Cacheable(value = "resultByIssue", key = "#issue")
     public LotteryResult getByIssue(String issue) {
         return baseMapper.selectByIssue(issue);
     }
@@ -39,6 +46,23 @@ public class LotteryService extends ServiceImpl<LotteryResultMapper, LotteryResu
      */
     public List<LotteryResult> getAllResults() {
         return list();
+    }
+
+    /**
+     * 分页查询，按期号倒序
+     */
+    public Map<String, Object> getPageOrderByIssueDesc(int page, int size) {
+        int offset = (page - 1) * size;
+        List<LotteryResult> records = baseMapper.selectPageOrderByIssueDesc(offset, size);
+        long total = count();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", records);
+        result.put("total", total);
+        result.put("size", size);
+        result.put("current", page);
+        result.put("pages", (total + size - 1) / size);
+        return result;
     }
 
     /**
@@ -55,8 +79,9 @@ public class LotteryService extends ServiceImpl<LotteryResultMapper, LotteryResu
     }
 
     /**
-     * 保存开奖结果并自动计算统计字段
+     * 保存开奖结果并自动计算统计字段 - 保存后清除缓存
      */
+    @CacheEvict(value = {"recentResults", "latestResult"}, allEntries = true)
     public void saveWithCalculation(LotteryResult result) {
         int[] front = {result.getFrontBall1(), result.getFrontBall2(), 
                        result.getFrontBall3(), result.getFrontBall4(), 

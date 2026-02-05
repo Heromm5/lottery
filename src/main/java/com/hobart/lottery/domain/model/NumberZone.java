@@ -14,15 +14,15 @@ public enum NumberZone {
     BACK(1, 12, 2, "后区", "back");
     
     /** 最小号码 */
-    private final int min;
+    public final int min;
     /** 最大号码 */
-    private final int max;
+    public final int max;
     /** 选号个数 */
-    private final int count;
+    public final int count;
     /** 显示名称 */
-    private final String displayName;
+    public final String displayName;
     /** 代码标识 */
-    private final String code;
+    public final String code;
     
     NumberZone(int min, int max, int count, String displayName, String code) {
         this.min = min;

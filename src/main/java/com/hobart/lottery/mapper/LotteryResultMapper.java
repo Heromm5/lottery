@@ -3,6 +3,7 @@ package com.hobart.lottery.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hobart.lottery.entity.LotteryResult;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -30,4 +31,10 @@ public interface LotteryResultMapper extends BaseMapper<LotteryResult> {
      */
     @Select("SELECT * FROM lottery_results WHERE issue = #{issue}")
     LotteryResult selectByIssue(String issue);
+
+    /**
+     * 分页查询，按期号倒序
+     */
+    @Select("SELECT * FROM lottery_results ORDER BY CAST(issue AS UNSIGNED) DESC LIMIT #{offset}, #{size}")
+    List<LotteryResult> selectPageOrderByIssueDesc(@Param("offset") int offset, @Param("size") int size);
 }

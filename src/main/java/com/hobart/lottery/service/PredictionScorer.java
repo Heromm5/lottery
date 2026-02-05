@@ -60,6 +60,44 @@ public class PredictionScorer {
     }
 
     /**
+     * 为预测结果列表评分
+     * 独立评分，不受生成器内部排序影响
+     *
+     * @param predictions 预测结果DTO列表
+     * @return 带分数的预测结果DTO列表（按分数降序排序）
+     */
+    public List<com.hobart.lottery.dto.PredictionResultDTO> scorePredictions(
+            List<com.hobart.lottery.dto.PredictionResultDTO> predictions) {
+
+        if (predictions == null || predictions.isEmpty()) {
+            return predictions;
+        }
+
+        // 获取历史数据用于分析
+        List<LotteryResult> history = lotteryService.getRecentResults(100);
+        HistoryPattern pattern = history.isEmpty() ? null : analyzeHistoryPattern(history);
+
+        // 为每个预测计算分数
+        List<com.hobart.lottery.dto.PredictionResultDTO> scored = new ArrayList<>();
+        for (com.hobart.lottery.dto.PredictionResultDTO dto : predictions) {
+            double score = 0;
+            if (pattern != null && dto.getFrontBalls() != null && dto.getBackBalls() != null) {
+                int[][] prediction = new int[][]{dto.getFrontBalls(), dto.getBackBalls()};
+                score = scorePrediction(prediction, pattern, history);
+            }
+            dto.setScore(score);
+            scored.add(dto);
+        }
+
+        // 按分数降序排序
+        scored.sort((a, b) -> Double.compare(
+                b.getScore() != null ? b.getScore() : 0,
+                a.getScore() != null ? a.getScore() : 0));
+
+        return scored;
+    }
+
+    /**
      * 分析历史模式特征
      */
     private HistoryPattern analyzeHistoryPattern(List<LotteryResult> history) {

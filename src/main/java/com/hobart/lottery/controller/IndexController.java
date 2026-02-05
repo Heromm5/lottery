@@ -1,59 +1,29 @@
 package com.hobart.lottery.controller;
 
-import com.hobart.lottery.dto.AccuracyStatsDTO;
-import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
-import com.hobart.lottery.service.LotteryService;
-import com.hobart.lottery.service.VerificationService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * 首页控制器
+ * SPA 入口控制器
+ * 将根路径请求转发到静态资源目录的 index.html
  */
 @Controller
-@RequiredArgsConstructor
 public class IndexController {
 
-    private final LotteryService lotteryService;
-    private final AnalysisService analysisService;
-    private final VerificationService verificationService;
-
+    /**
+     * SPA 入口 - 返回静态 index.html
+     * Spring Boot 默认会从 classpath:/static/ 或 /public 目录查找
+     */
     @GetMapping("/")
-    public String index(Model model) {
-        // 最新开奖结果
-        LotteryResult latest = lotteryService.getLatestResult();
-        model.addAttribute("latest", latest);
-
-        // 最近10期开奖
-        List<LotteryResult> recentResults = lotteryService.getRecentResults(10);
-        model.addAttribute("recentResults", recentResults);
-
-        // 统计数据
-        long totalCount = lotteryService.count();
-        model.addAttribute("totalCount", totalCount);
-
-        // 奇偶比统计
-        Map<String, Integer> oddEvenStats = analysisService.getOddEvenStats();
-        model.addAttribute("oddEvenStats", oddEvenStats);
-
-        // 和值分布
-        Map<String, Integer> sumStats = analysisService.getFrontSumStats();
-        model.addAttribute("sumStats", sumStats);
-
-        // 准确率统计
-        List<AccuracyStatsDTO> accuracyStats = verificationService.getAllAccuracyStats();
-        model.addAttribute("accuracyStats", accuracyStats);
-
-        // 下一期期号
-        String nextIssue = lotteryService.generateNextIssue();
-        model.addAttribute("nextIssue", nextIssue);
-
-        return "index";
+    public String index() {
+        // 由于 index.html 已在 static 目录，Spring Boot 会自动返回
+        // 此处返回 "forward:index.html" 让 Spring 转发请求
+        return "forward:/index.html";
     }
+
+    /**
+     * 防止刷新 404 - 转发所有非 API 请求到 index.html
+     * 注意：此配置已由 Spring Boot 默认处理
+     * 如需更复杂的路由控制，可使用 WebMvcConfigurer 覆盖
+     */
 }
