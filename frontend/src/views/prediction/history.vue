@@ -9,10 +9,19 @@
 
     <div class="tech-card">
       <div class="tech-card__body">
+        <!-- 筛选Tab -->
+        <div class="filter-tabs">
+          <el-radio-group v-model="filterStatus" @change="handleFilterChange" size="small">
+            <el-radio-button value="all">全部</el-radio-button>
+            <el-radio-button value="verified">已开奖</el-radio-button>
+            <el-radio-button value="unverified">未开奖</el-radio-button>
+          </el-radio-group>
+        </div>
+
         <el-table
           :data="historyList"
           v-loading="loading"
-          stripe
+          class="history-table"
           style="width: 100%"
         >
           <el-table-column prop="targetIssue" label="预测期号" width="120" align="center" />
@@ -39,6 +48,7 @@
               <el-tag
                 :type="row.isVerified === 1 ? 'success' : 'info'"
                 effect="dark"
+                size="small"
               >
                 {{ row.isVerified === 1 ? '已验证' : '未验证' }}
               </el-tag>
@@ -63,6 +73,7 @@
                 v-if="row.prizeLevel"
                 :type="getPrizeType(row.prizeLevel)"
                 effect="dark"
+                size="small"
               >
                 {{ row.prizeLevel }}
               </el-tag>
@@ -98,11 +109,12 @@ const historyList = ref<PredictionRecord[]>([])
 const page = ref(1)
 const size = ref(20)
 const total = ref(0)
+const filterStatus = ref('all') // 筛选状态: all-全部, verified-已开奖, unverified-未开奖
 
 async function fetchHistory() {
   loading.value = true
   try {
-    const result = await predictionApi.getList(page.value, size.value)
+    const result = await predictionApi.getList(page.value, size.value, filterStatus.value)
     historyList.value = result.records
     total.value = result.total
   } catch (error) {
@@ -110,6 +122,11 @@ async function fetchHistory() {
   } finally {
     loading.value = false
   }
+}
+
+function handleFilterChange() {
+  page.value = 1
+  fetchHistory()
 }
 
 function getPrizeType(prize: string): string {
@@ -178,9 +195,44 @@ onMounted(() => {
   color: $text-muted;
 }
 
+.filter-tabs {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.history-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: rgba($bg-dark-lighter, 0.6);
+  --el-table-header-bg-color: rgba($bg-dark-lighter, 0.8);
+  --el-table-row-hover-bg-color: rgba($primary-color, 0.15);
+  --el-table-border-color: $border-color;
+  --el-table-text-color: $text-primary;
+  --el-table-header-text-color: $text-secondary;
+
+  background: transparent;
+
+  &::before {
+    display: none;
+  }
+
+  th.el-table__cell {
+    background: rgba($bg-dark-lighter, 0.9);
+    border-bottom: 1px solid $border-color;
+    padding: 10px 0;
+  }
+
+  td.el-table__cell {
+    border-bottom: 1px solid rgba($border-color, 0.4);
+    padding: 8px 0;
+  }
+}
+
 .pagination-wrap {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
 }
 </style>

@@ -123,7 +123,7 @@
           </div>
           <h3>智能预测</h3>
           <p>多算法融合生成预测号码</p>
-          <el-button type="primary" plain>立即预测</el-button>
+          <el-button type="primary">立即预测</el-button>
         </div>
         <div class="action-card" @click="$router.push('/analysis')">
           <div class="action-icon">
@@ -131,7 +131,7 @@
           </div>
           <h3>数据分析</h3>
           <p>频率、遗漏、走势深度分析</p>
-          <el-button type="success" plain>查看分析</el-button>
+          <el-button type="primary">查看分析</el-button>
         </div>
         <div class="action-card" @click="$router.push('/verification')">
           <div class="action-icon">
@@ -139,7 +139,7 @@
           </div>
           <h3>结果验证</h3>
           <p>验证预测准确率统计</p>
-          <el-button type="warning" plain>开始验证</el-button>
+          <el-button type="primary">开始验证</el-button>
         </div>
         <div class="action-card" @click="$router.push('/lottery')">
           <div class="action-icon">
@@ -147,7 +147,7 @@
           </div>
           <h3>数据管理</h3>
           <p>开奖数据录入与管理</p>
-          <el-button type="info" plain>管理数据</el-button>
+          <el-button type="primary">管理数据</el-button>
         </div>
       </div>
     </section>

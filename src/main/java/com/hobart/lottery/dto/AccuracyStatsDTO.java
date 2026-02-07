@@ -59,4 +59,29 @@ public class AccuracyStatsDTO {
      * 中奖率
      */
     private Double prizeRate;
+    
+    /**
+     * 前区命中率（命中数/5）
+     */
+    private Double frontHitRate;
+    
+    /**
+     * 后区命中率（命中数/2）
+     */
+    private Double backHitRate;
+    
+    /**
+     * 综合得分（用于排行）
+     */
+    private Double compositeScore;
+    
+    /**
+     * 高等奖次数（一二三等）
+     */
+    private Integer highPrizeCount;
+    
+    /**
+     * 排名
+     */
+    private Integer rank;
 }

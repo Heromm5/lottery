@@ -10,6 +10,10 @@ frontend/node_modules/
 frontend/.env.local
 frontend/.env.*.local
 
+### Backend Static Resources (Frontend build output) ###
+src/main/resources/static/*
+!src/main/resources/static/.gitkeep
+
 ### IDE ###
 .idea/
 .vscode/

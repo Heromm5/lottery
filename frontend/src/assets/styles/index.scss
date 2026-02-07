@@ -250,12 +250,91 @@ body {
 // ============================================
 // Element Plus 覆盖样式
 // ============================================
+
+// 按钮统一样式
+.el-button {
+  border-radius: $radius-md !important;
+  transition: all $transition-normal !important;
+}
+
 .el-button--primary {
   background: linear-gradient(135deg, $primary-color, $primary-light) !important;
   border: none !important;
 
   &:hover {
     box-shadow: $shadow-glow !important;
+    transform: translateY(-1px);
+  }
+}
+
+.el-button--success {
+  background: linear-gradient(135deg, $accent-green, darken($accent-green, 10%)) !important;
+  border: none !important;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba($accent-green, 0.4) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.el-button--warning {
+  background: linear-gradient(135deg, $accent-orange, darken($accent-orange, 10%)) !important;
+  border: none !important;
+
+  &:hover {
+    box-shadow: 0 0 20px rgba($accent-orange, 0.4) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.el-button--info {
+  background: linear-gradient(135deg, rgba($text-secondary, 0.3), rgba($text-muted, 0.3)) !important;
+  border: 1px solid $border-color !important;
+
+  &:hover {
+    border-color: $primary-color !important;
+    box-shadow: $shadow-glow !important;
+    transform: translateY(-1px);
+  }
+}
+
+// 输入框统一样式
+.el-input__wrapper {
+  background: $bg-dark-lighter !important;
+  border: 1px solid $border-color !important;
+  border-radius: $radius-md !important;
+  box-shadow: none !important;
+
+  &:hover,
+  &.is-focus {
+    border-color: $primary-color !important;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
+  }
+}
+
+.el-input__inner {
+  background: transparent !important;
+  border: none !important;
+  color: $text-primary !important;
+  height: 36px !important;
+}
+
+// 数字输入框样式
+.el-input-number {
+  .el-input__wrapper {
+    padding: 0 8px !important;
+  }
+
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    background: rgba($primary-color, 0.1) !important;
+    border-color: $border-color !important;
+    color: $text-secondary !important;
+
+    &:hover {
+      background: rgba($primary-color, 0.2) !important;
+      color: $primary-color !important;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import { request } from '../axios'
-import type { AccuracyStats, Result, PageResult } from '@/types'
+import type { AccuracyStats, BacktestResult, Result, PageResult } from '@/types'
 
 // 验证历史记录类型
 export interface VerificationHistoryRecord {
@@ -24,6 +24,12 @@ export const verificationApi = {
   getAccuracyStats: () =>
     request.get<Result<AccuracyStats[]>>('/verification/stats'),
 
+  // 获取准确率排行榜
+  getAccuracyRanking: (sortBy = 'composite', ascending = false) =>
+    request.get<Result<AccuracyStats[]>>('/verification/stats/ranking', {
+      params: { sortBy, ascending }
+    }),
+
   // 获取验证历史
   getHistory: (page = 1, size = 20) =>
     request.get<Result<PageResult<VerificationHistoryRecord>>>('/verification/history', {
@@ -40,5 +46,12 @@ export const verificationApi = {
 
   // 触发验证
   triggerVerify: (issue: string) =>
-    request.post<Result<any>>(`/verification/verify/${issue}`)
+    request.post<Result<any>>(`/verification/verify/${issue}`),
+
+  // 批量历史回测（增加超时时间，因为回测需要较长时间）
+  runBacktest: (method?: string, issueCount = 50, predictionsPerIssue = 5) =>
+    request.post<Result<BacktestResult[]>>('/verification/backtest', null, {
+      params: { method, issueCount, predictionsPerIssue },
+      timeout: 120000 // 120秒超时
+    })
 }

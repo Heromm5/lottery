@@ -94,12 +94,66 @@ export interface AssociationRule {
 }
 
 export interface AccuracyStats {
+  predictMethod?: string
   methodName: string
   totalPredictions: number
   frontAvgHit: number
   backAvgHit: number
   totalPrizeCount: number
   prizeRate?: number
+  frontHitRate?: number
+  backHitRate?: number
+  compositeScore?: number
+  highPrizeCount?: number
+  rank?: number
+  prizeCount1?: number
+  prizeCount2?: number
+  prizeCount3?: number
+  prizeCount4?: number
+  prizeCount5?: number
+  prizeCount6?: number
+  prizeCount7?: number
+}
+
+// 回测详情
+export interface BacktestDetail {
+  issue: string
+  prediction: string
+  actualResult: string
+  frontHit: number
+  backHit: number
+  prizeLevel: string
+  prizeMoney: number
+}
+
+// 回测结果
+export interface BacktestResult {
+  method: string
+  methodName: string
+  totalIssues: number
+  totalPredictions: number
+  avgFrontHit: number
+  avgBackHit: number
+  frontHitRate: number
+  backHitRate: number
+  prizeCount1: number
+  prizeCount2: number
+  prizeCount3: number
+  prizeCount4: number
+  prizeCount5: number
+  prizeCount6: number
+  prizeCount7: number
+  totalPrizeCount: number
+  prizeRate: number
+  highPrizeCount: number
+  totalCost: number
+  totalPrizeMoney: number
+  profitLoss: number
+  roi: number
+  bestIssue: string
+  bestPrize: string
+  details: BacktestDetail[]
+  evaluation: string
 }
 
 // 统计相关类型

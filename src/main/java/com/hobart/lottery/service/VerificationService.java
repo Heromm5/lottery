@@ -215,48 +215,127 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
     }
 
     /**
-     * 获取所有方法的准确率统计
+     * 获取所有方法的准确率统计（带完整计算）
      */
     public List<AccuracyStatsDTO> getAllAccuracyStats() {
+        return getAllAccuracyStats("composite", false);
+    }
+
+    /**
+     * 获取准确率排行榜
+     * @param sortBy 排序字段：composite(综合得分), hit(平均命中), prize(中奖率), high(高等奖)
+     * @param ascending 是否升序
+     */
+    public List<AccuracyStatsDTO> getAllAccuracyStats(String sortBy, boolean ascending) {
         List<PredictionAccuracy> stats = baseMapper.selectAllStats();
         List<AccuracyStatsDTO> dtos = new ArrayList<>();
 
         for (PredictionAccuracy stat : stats) {
-            AccuracyStatsDTO dto = new AccuracyStatsDTO();
-            dto.setPredictMethod(stat.getPredictMethod());
-            dto.setMethodName(PredictionMethod.getDisplayName(stat.getPredictMethod()));
-            dto.setTotalPredictions(stat.getTotalPredictions());
-            dto.setFrontAvgHit(stat.getFrontAvgHit());
-            dto.setBackAvgHit(stat.getBackAvgHit());
-            dto.setPrizeCount1(stat.getPrizeCount1());
-            dto.setPrizeCount2(stat.getPrizeCount2());
-            dto.setPrizeCount3(stat.getPrizeCount3());
-            dto.setPrizeCount4(stat.getPrizeCount4());
-            dto.setPrizeCount5(stat.getPrizeCount5());
-            dto.setPrizeCount6(stat.getPrizeCount6());
-            dto.setPrizeCount7(stat.getPrizeCount7());
-
-            // 计算总中奖次数（一等奖~七等奖）
-            int totalPrize = (stat.getPrizeCount1() != null ? stat.getPrizeCount1() : 0)
-                    + (stat.getPrizeCount2() != null ? stat.getPrizeCount2() : 0)
-                    + (stat.getPrizeCount3() != null ? stat.getPrizeCount3() : 0)
-                    + (stat.getPrizeCount4() != null ? stat.getPrizeCount4() : 0)
-                    + (stat.getPrizeCount5() != null ? stat.getPrizeCount5() : 0)
-                    + (stat.getPrizeCount6() != null ? stat.getPrizeCount6() : 0)
-                    + (stat.getPrizeCount7() != null ? stat.getPrizeCount7() : 0);
-            dto.setTotalPrizeCount(totalPrize);
-
-            // 计算中奖率
-            if (stat.getTotalPredictions() != null && stat.getTotalPredictions() > 0) {
-                dto.setPrizeRate(totalPrize * 100.0 / stat.getTotalPredictions());
-            } else {
-                dto.setPrizeRate(0.0);
-            }
-
+            AccuracyStatsDTO dto = convertToDTO(stat);
             dtos.add(dto);
         }
 
+        // 排序
+        sortAccuracyStats(dtos, sortBy, ascending);
+
+        // 设置排名
+        for (int i = 0; i < dtos.size(); i++) {
+            dtos.get(i).setRank(i + 1);
+        }
+
         return dtos;
+    }
+
+    /**
+     * 将实体转换为DTO并计算所有派生指标
+     */
+    private AccuracyStatsDTO convertToDTO(PredictionAccuracy stat) {
+        AccuracyStatsDTO dto = new AccuracyStatsDTO();
+        dto.setPredictMethod(stat.getPredictMethod());
+        dto.setMethodName(PredictionMethod.getDisplayName(stat.getPredictMethod()));
+        dto.setTotalPredictions(stat.getTotalPredictions());
+        dto.setFrontAvgHit(stat.getFrontAvgHit());
+        dto.setBackAvgHit(stat.getBackAvgHit());
+        dto.setPrizeCount1(stat.getPrizeCount1());
+        dto.setPrizeCount2(stat.getPrizeCount2());
+        dto.setPrizeCount3(stat.getPrizeCount3());
+        dto.setPrizeCount4(stat.getPrizeCount4());
+        dto.setPrizeCount5(stat.getPrizeCount5());
+        dto.setPrizeCount6(stat.getPrizeCount6());
+        dto.setPrizeCount7(stat.getPrizeCount7());
+
+        // 计算总中奖次数
+        int totalPrize = (stat.getPrizeCount1() != null ? stat.getPrizeCount1() : 0)
+                + (stat.getPrizeCount2() != null ? stat.getPrizeCount2() : 0)
+                + (stat.getPrizeCount3() != null ? stat.getPrizeCount3() : 0)
+                + (stat.getPrizeCount4() != null ? stat.getPrizeCount4() : 0)
+                + (stat.getPrizeCount5() != null ? stat.getPrizeCount5() : 0)
+                + (stat.getPrizeCount6() != null ? stat.getPrizeCount6() : 0)
+                + (stat.getPrizeCount7() != null ? stat.getPrizeCount7() : 0);
+        dto.setTotalPrizeCount(totalPrize);
+
+        // 计算中奖率
+        double prizeRate = 0.0;
+        if (stat.getTotalPredictions() != null && stat.getTotalPredictions() > 0) {
+            prizeRate = totalPrize * 100.0 / stat.getTotalPredictions();
+        }
+        dto.setPrizeRate(prizeRate);
+
+        // 计算前区命中率
+        double frontHitRate = 0.0;
+        if (stat.getFrontAvgHit() != null) {
+            frontHitRate = stat.getFrontAvgHit().doubleValue() * 100.0 / 5.0;
+        }
+        dto.setFrontHitRate(frontHitRate);
+
+        // 计算后区命中率
+        double backHitRate = 0.0;
+        if (stat.getBackAvgHit() != null) {
+            backHitRate = stat.getBackAvgHit().doubleValue() * 100.0 / 2.0;
+        }
+        dto.setBackHitRate(backHitRate);
+
+        // 计算高等奖次数
+        int highPrize = (stat.getPrizeCount1() != null ? stat.getPrizeCount1() : 0)
+                + (stat.getPrizeCount2() != null ? stat.getPrizeCount2() : 0)
+                + (stat.getPrizeCount3() != null ? stat.getPrizeCount3() : 0);
+        dto.setHighPrizeCount(highPrize);
+
+        // 计算综合得分（加权：命中率40% + 中奖率30% + 高等奖20% + 样本量10%）
+        double sampleWeight = Math.min(stat.getTotalPredictions() / 100.0, 1.0); // 样本量权重，最多100期满分
+        double compositeScore = frontHitRate * 0.25 + backHitRate * 0.15 + prizeRate * 0.30 + highPrize * 2.0 + sampleWeight * 10.0;
+        dto.setCompositeScore(compositeScore);
+
+        return dto;
+    }
+
+    /**
+     * 排序准确率统计
+     */
+    private void sortAccuracyStats(List<AccuracyStatsDTO> dtos, String sortBy, boolean ascending) {
+        Comparator<AccuracyStatsDTO> comparator;
+
+        switch (sortBy) {
+            case "hit":
+                comparator = Comparator.comparing(d -> d.getFrontAvgHit().doubleValue() + d.getBackAvgHit().doubleValue(), Comparator.reverseOrder());
+                break;
+            case "prize":
+                comparator = Comparator.comparing(AccuracyStatsDTO::getPrizeRate, Comparator.reverseOrder());
+                break;
+            case "high":
+                comparator = Comparator.comparing(AccuracyStatsDTO::getHighPrizeCount, Comparator.reverseOrder());
+                break;
+            case "composite":
+            default:
+                comparator = Comparator.comparing(AccuracyStatsDTO::getCompositeScore, Comparator.reverseOrder());
+                break;
+        }
+
+        if (ascending) {
+            comparator = comparator.reversed();
+        }
+
+        dtos.sort(comparator);
     }
 
     /**
