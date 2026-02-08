@@ -267,7 +267,7 @@
         <el-table :data="historyList" class="verify-table" style="width: 100%" v-loading="historyLoading">
           <el-table-column prop="targetIssue" label="期号" align="center" />
           <el-table-column prop="methodName" label="方法" />
-          <el-table-column label="预测号码" align="center">
+          <el-table-column label="预测号码" align="center" min-width="180">
             <template #default="{ row }">
               <div class="balls-compare">
                 <div class="balls-cell balls-cell--front">
@@ -290,7 +290,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="开奖号码" align="center">
+          <el-table-column label="开奖号码" align="center" min-width="180">
             <template #default="{ row }">
               <div class="balls-compare">
                 <div class="balls-cell balls-cell--front">
@@ -331,7 +331,11 @@
               <span v-else class="no-prize">未中奖</span>
             </template>
           </el-table-column>
-          <el-table-column prop="verifiedAt" label="验证时间" />
+          <el-table-column prop="verifiedAt" label="验证时间">
+            <template #default="{ row }">
+              {{ formatDateTime(row.verifiedAt) }}
+            </template>
+          </el-table-column>
         </el-table>
 
         <div class="pagination-wrap">
@@ -353,6 +357,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 import { DataAnalysis, List, Refresh, RefreshRight, Trophy, Histogram } from '@element-plus/icons-vue'
 import { verificationApi, type VerificationHistoryRecord } from '@/api'
 import type { AccuracyStats, BacktestResult } from '@/types'
@@ -504,6 +509,12 @@ onMounted(() => {
   fetchUnverifiedIssues()
   fetchRanking()
 })
+
+// 格式化日期时间
+function formatDateTime(dateStr: string) {
+  if (!dateStr) return '-'
+  return dayjs(dateStr).format('YYYY-MM-DD HH:mm:ss')
+}
 </script>
 
 <style lang="scss" scoped>

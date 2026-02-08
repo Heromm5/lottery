@@ -61,7 +61,7 @@
             v-model="form.drawDate"
             type="date"
             placeholder="选择日期"
-            value-format="yyyy-MM-dd"
+            value-format="YYYY-MM-DD"
             style="width: 100%"
           />
         </el-form-item>
