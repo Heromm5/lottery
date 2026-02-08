@@ -42,13 +42,17 @@
             </div>
             <div class="config-row-inline">
               <div class="config-item">
+                <span class="config-label">预测期号</span>
+                <el-input v-model="targetIssue" placeholder="自动获取" size="small" style="width: 120px" />
+              </div>
+              <div class="config-item">
                 <span class="config-label">每种方法生成</span>
-                <el-input-number v-model="betsPerMethod" :min="1" :max="10" size="small" />
+                <el-input-number v-model="betsPerMethod" :min="1" size="small" />
                 <span class="config-unit">注</span>
               </div>
               <div class="config-item">
                 <span class="config-label">最终选取</span>
-                <el-input-number v-model="targetCount" :min="1" :max="20" size="small" />
+                <el-input-number v-model="targetCount" :min="1" size="small" />
                 <span class="config-unit">注</span>
               </div>
             </div>
@@ -71,12 +75,9 @@
             <div class="section-header">
               <span class="section-title">
                 <el-icon><DocumentCopy /></el-icon>
-                已生成 {{ generatedResults.length }} 注
+                已生成 {{ generatedResults.length }} 注，已自动选择概率最高的 {{ finalResults.length }} 注
               </span>
-              <div class="section-actions">
-                <el-button size="small" text @click="selectTop">选择前 {{ targetCount }} 注</el-button>
-                <el-button size="small" text @click="clearSelection">清空</el-button>
-              </div>
+              <el-button size="small" text @click="clearAll">清空重新生成</el-button>
             </div>
             <div class="results-grid">
               <div
@@ -84,28 +85,14 @@
                 :key="index"
                 class="result-chip"
                 :class="{ selected: selectedResults.includes(index) }"
-                @click="toggleSelection(index)"
               >
-                <el-checkbox :model-value="selectedResults.includes(index)" @click.stop />
+                <el-icon v-if="selectedResults.includes(index)" class="check-icon"><Select /></el-icon>
                 <span class="chip-method">{{ item.methodName }}</span>
                 <span class="chip-balls">
                   <span class="ball-text front">{{ item.frontBalls.slice(0, 3).join(' ') }}</span>
                   <span class="ball-text back">{{ item.backBalls.join(' ') }}</span>
                 </span>
               </div>
-            </div>
-            <div class="selection-bar">
-              <span class="selection-info">
-                已选择 <strong>{{ selectedResults.length }}</strong> / {{ targetCount }} 注
-              </span>
-              <el-button
-                type="primary"
-                size="small"
-                :disabled="selectedResults.length !== targetCount"
-                @click="confirmSelection"
-              >
-                确认选择
-              </el-button>
             </div>
           </div>
         </div>
@@ -138,13 +125,7 @@
           </div>
           <div v-else class="final-empty">
             <el-icon size="32"><MagicStick /></el-icon>
-            <p>选择 {{ targetCount }} 注作为最终预测</p>
-          </div>
-          <div v-if="finalResults.length > 0" class="final-actions">
-            <el-button size="small" @click="regenerateFromSelection">
-              <el-icon><Refresh /></el-icon>
-              重新选择
-            </el-button>
+            <p>点击上方按钮生成预测</p>
           </div>
         </div>
       </div>
@@ -168,14 +149,15 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
-  MagicStick, Refresh, Star, Lightning,
-  DocumentCopy, Clock
+  MagicStick, Star, Lightning,
+  DocumentCopy, Clock, Select
 } from '@element-plus/icons-vue'
 import { predictionApi } from '@/api'
 import type { PredictionResult } from '@/types'
 
 const generating = ref(false)
 const selectedMethods = ref<string[]>(['HOT', 'MISSING', 'BALANCED', 'ML', 'ADAPTIVE', 'BAYESIAN', 'MARKOV', 'MONTECARLO', 'GRADIENT_BOOST', 'ENSEMBLE'])
+const targetIssue = ref('')
 const betsPerMethod = ref(5)
 const targetCount = ref(5)
 const generatedResults = ref<PredictionResult[]>([])
@@ -226,7 +208,7 @@ async function generatePredictions() {
 
     for (const method of selectedMethods.value) {
       try {
-        const results = await predictionApi.generate(betsPerMethod.value, method)
+        const results = await predictionApi.generate(betsPerMethod.value, method, targetIssue.value || undefined)
         if (results && results.length > 0) {
           allResults.push(...results)
         }
@@ -243,7 +225,7 @@ async function generatePredictions() {
     // 调用评分API获取带分数的预测结果
     const scoredResults = await predictionApi.score(allResults)
 
-    // 按分数降序排序，选择前N注概率最高的
+    // 按分数降序排序
     const sortedResults = scoredResults.sort((a, b) => {
       const scoreA = a.score || 0
       const scoreB = b.score || 0
@@ -252,11 +234,12 @@ async function generatePredictions() {
 
     generatedResults.value = sortedResults
 
-    // 选择分数最高的N注
-    selectedResults.value = Array.from({ length: Math.min(targetCount.value, sortedResults.length) }, (_, i) => i)
+    // 自动选择分数最高的N注
+    const count = Math.min(targetCount.value, sortedResults.length)
+    selectedResults.value = Array.from({ length: count }, (_, i) => i)
     finalResults.value = selectedResults.value.map(i => sortedResults[i])
 
-    ElMessage.success(`生成 ${allResults.length} 注预测，已选择概率最高的 ${finalResults.value.length} 注`)
+    ElMessage.success(`生成 ${allResults.length} 注预测，已自动选择概率最高的 ${finalResults.value.length} 注`)
   } catch (error) {
     ElMessage.error('预测生成失败')
     console.error(error)
@@ -265,43 +248,10 @@ async function generatePredictions() {
   }
 }
 
-function toggleSelection(index: number) {
-  const idx = selectedResults.value.indexOf(index)
-  if (idx >= 0) {
-    selectedResults.value.splice(idx, 1)
-  } else {
-    if (selectedResults.value.length < targetCount.value) {
-      selectedResults.value.push(index)
-    } else {
-      ElMessage.warning(`最多选择 ${targetCount.value} 注`)
-    }
-  }
-  finalResults.value = selectedResults.value.map(i => generatedResults.value[i])
-}
-
-function selectTop() {
-  // 假设 generatedResults 已经按分数降序排序，直接选择前N注
-  const count = Math.min(targetCount.value, generatedResults.value.length)
-  selectedResults.value = Array.from({ length: count }, (_, i) => i)
-  finalResults.value = selectedResults.value.map(i => generatedResults.value[i])
-}
-
-function clearSelection() {
+function clearAll() {
+  generatedResults.value = []
   selectedResults.value = []
   finalResults.value = []
-}
-
-function confirmSelection() {
-  if (selectedResults.value.length !== targetCount.value) {
-    ElMessage.warning(`请选择恰好 ${targetCount.value} 注`)
-    return
-  }
-  finalResults.value = selectedResults.value.map(i => generatedResults.value[i])
-}
-
-function regenerateFromSelection() {
-  finalResults.value = []
-  selectedResults.value = []
 }
 </script>
 
@@ -478,6 +428,12 @@ function regenerateFromSelection() {
     gap: 4px;
     flex: 1;
     min-width: 0;
+  }
+
+  .check-icon {
+    color: #67c23a;
+    font-size: 14px;
+    flex-shrink: 0;
   }
 }
 

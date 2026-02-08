@@ -12,12 +12,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 配置跨域资源共享
-     * 允许前端开发服务器 (localhost:3000) 的请求
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOriginPatterns("http://localhost:*")
+                .allowedOriginPatterns("http://localhost:*", "http://192.168.202.101:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
