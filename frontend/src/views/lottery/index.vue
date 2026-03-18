@@ -254,11 +254,9 @@ onMounted(fetchList)
 
   h1 {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
-    background: linear-gradient(90deg, $primary-color, $accent-cyan);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $text-primary;
   }
 
   p {
@@ -380,16 +378,14 @@ onMounted(fetchList)
   }
 
   &.ball--front.ball--selected {
-    background: linear-gradient(135deg, $primary-color, $primary-light);
+    background: $primary-color;
     border-color: $primary-color;
-    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
     color: white;
   }
 
   &.ball--back.ball--selected {
-    background: linear-gradient(135deg, #f5576c, #f093fb);
-    border-color: #f5576c;
-    box-shadow: 0 0 10px rgba(245, 87, 108, 0.5);
+    background: #ec4899;
+    border-color: #ec4899;
     color: white;
   }
 }

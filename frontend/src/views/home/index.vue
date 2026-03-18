@@ -349,7 +349,7 @@ function renderChart(data: Record<string, number>) {
         }
       },
       data: chartData,
-      color: ['#667eea', '#f4a261', '#2a9d8f', '#457b9d', '#1d3557', '#264653']
+      color: ['#4a90d9', '#00d4aa', '#8b5cf6', '#f59e0b', '#ef4444', '#10b981']
     }]
   }
 
@@ -388,15 +388,9 @@ function handleResize() {
 
 .welcome-title {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 12px;
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, $primary-color, $accent-cyan, $accent-purple);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: $text-primary;
 }
 
 .welcome-subtitle {
@@ -498,7 +492,7 @@ function handleResize() {
   width: 56px;
   height: 56px;
   border-radius: $radius-lg;
-  background: linear-gradient(135deg, rgba($primary-color, 0.2), rgba($primary-light, 0.2));
+  background: rgba($primary-color, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -506,17 +500,17 @@ function handleResize() {
   color: $primary-color;
 
   &.accent {
-    background: linear-gradient(135deg, rgba($accent-cyan, 0.2), rgba($accent-green, 0.2));
+    background: rgba($accent-cyan, 0.15);
     color: $accent-cyan;
   }
 
   &.purple {
-    background: linear-gradient(135deg, rgba($accent-purple, 0.2), rgba($primary-light, 0.2));
+    background: rgba($accent-purple, 0.15);
     color: $accent-purple;
   }
 
   &.green {
-    background: linear-gradient(135deg, rgba($accent-green, 0.2), rgba($primary-color, 0.2));
+    background: rgba($accent-green, 0.15);
     color: $accent-green;
   }
 }
@@ -549,8 +543,6 @@ function handleResize() {
 
   &:hover {
     border-color: $primary-color;
-    transform: translateY(-4px);
-    box-shadow: $shadow-glow;
   }
 
   h3 {
@@ -571,7 +563,7 @@ function handleResize() {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba($primary-color, 0.2), rgba($primary-light, 0.2));
+  background: rgba($primary-color, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;

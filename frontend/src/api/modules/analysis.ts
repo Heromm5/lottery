@@ -8,6 +8,14 @@ import type {
   PageResult
 } from '@/types'
 
+// 尾数频率 DTO 类型
+export interface DigitFrequencyDTO {
+  digit: number
+  count: number
+  frequency: number
+  missing: number
+}
+
 // 分析相关 API
 export const analysisApi = {
   // 前区频率统计
@@ -75,6 +83,20 @@ export const analysisApi = {
     request.get<Result<any>>('/analysis/association/network', {
       params: { zone, topN }
     }),
+
+  // 尾数频率统计
+  getDigitFrequency: (zone: 'front' | 'back' = 'front') =>
+    request.get<Result<DigitFrequencyDTO[]>>('/analysis/digit/frequency', {
+      params: { zone }
+    }),
+
+  // 尾数和值统计
+  getDigitSumStats: () =>
+    request.get<Result<Record<string, number>>>('/analysis/digit/sum'),
+
+  // 区间分布统计
+  getZoneDistribution: () =>
+    request.get<Result<Record<string, Record<string, number>>>>('/analysis/zone/distribution'),
 
   // 统计信息（兼容性方法）
   getStats: () =>

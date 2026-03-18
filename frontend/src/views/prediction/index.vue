@@ -539,11 +539,11 @@ function clearAll() {
   letter-spacing: 1px;
 
   &.front {
-    color: #667eea;
+    color: #6366f1;
   }
 
   &.back {
-    color: #f5576c;
+    color: #ec4899;
   }
 }
 

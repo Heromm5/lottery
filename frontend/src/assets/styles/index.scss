@@ -2,13 +2,56 @@
 
 // ============================================
 // 全局重置
-// ============================================
+// ============================================,
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family;
+  background: $bg-dark;
+  color: $text-primary;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+// ============================================
+// 滚动条样式 - 更简洁
+// ============================================
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-dark-lighter;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-light;
+  border-radius: 4px;
+
+  &:hover {
+    background: $primary-color;
+  }
+}
+
+// ============================================
+// 简洁背景
+// ============================================
+body {
+  background-image: linear-gradient(180deg, $bg-dark 0%, $bg-dark-lighter 100%);
+  background-attachment: fixed;
 }
 
 html {
@@ -97,34 +140,31 @@ body {
 .mb-lg { margin-bottom: 24px; }
 
 // ============================================
-// 科技感卡片
+// 简约卡片样式
 // ============================================
 .tech-card {
   background: $bg-card;
   border: 1px solid $border-color;
   border-radius: $radius-lg;
-  backdrop-filter: blur(10px);
   transition: all $transition-normal;
 
   &:hover {
-    border-color: $border-glow;
-    box-shadow: $shadow-glow;
-    transform: translateY(-2px);
+    border-color: $primary-color;
+    box-shadow: $shadow-md;
   }
 
   &__body {
-    padding: 16px;
-    background: rgba($bg-dark, 0.3);
-    border-radius: 0 0 $radius-lg $radius-lg;
+    padding: 20px;
+    background: transparent;
   }
 
   &__header {
-    padding: 12px 16px;
+    padding: 16px 20px;
     border-bottom: 1px solid $border-color;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba($bg-dark, 0.5);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: $radius-lg $radius-lg 0 0;
   }
 
@@ -134,11 +174,7 @@ body {
     color: $text-primary;
     display: flex;
     align-items: center;
-    gap: 8px;
-  }
-
-  &__body {
-    padding: 16px;
+    gap: 10px;
   }
 }
 
@@ -186,21 +222,20 @@ body {
 }
 
 // ============================================
-// 统计数字动画
+// 数字样式 - 更简洁
 // ============================================
 .stat-number {
   font-family: $font-mono;
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 700;
   color: $accent-cyan;
-  text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
 
   &--large {
-    font-size: 48px;
+    font-size: 42px;
   }
 
   &--small {
-    font-size: 24px;
+    font-size: 20px;
   }
 }
 
@@ -248,53 +283,48 @@ body {
 }
 
 // ============================================
-// Element Plus 覆盖样式
+// Element Plus 覆盖样式 - 简约现代
 // ============================================
 
 // 按钮统一样式
 .el-button {
   border-radius: $radius-md !important;
   transition: all $transition-normal !important;
+  font-weight: 500;
 }
 
 .el-button--primary {
-  background: linear-gradient(135deg, $primary-color, $primary-light) !important;
+  background: $primary-color !important;
   border: none !important;
 
   &:hover {
+    background: $primary-light !important;
     box-shadow: $shadow-glow !important;
-    transform: translateY(-1px);
   }
 }
 
 .el-button--success {
-  background: linear-gradient(135deg, $accent-green, darken($accent-green, 10%)) !important;
+  background: $accent-green !important;
   border: none !important;
 
   &:hover {
-    box-shadow: 0 0 20px rgba($accent-green, 0.4) !important;
-    transform: translateY(-1px);
+    box-shadow: 0 0 15px rgba($accent-green, 0.3) !important;
   }
 }
 
 .el-button--warning {
-  background: linear-gradient(135deg, $accent-orange, darken($accent-orange, 10%)) !important;
+  background: $accent-orange !important;
   border: none !important;
-
-  &:hover {
-    box-shadow: 0 0 20px rgba($accent-orange, 0.4) !important;
-    transform: translateY(-1px);
-  }
 }
 
 .el-button--info {
-  background: linear-gradient(135deg, rgba($text-secondary, 0.3), rgba($text-muted, 0.3)) !important;
+  background: transparent !important;
   border: 1px solid $border-color !important;
+  color: $text-secondary !important;
 
   &:hover {
     border-color: $primary-color !important;
-    box-shadow: $shadow-glow !important;
-    transform: translateY(-1px);
+    color: $text-primary !important;
   }
 }
 
@@ -308,7 +338,6 @@ body {
   &:hover,
   &.is-focus {
     border-color: $primary-color !important;
-    box-shadow: 0 0 0 2px rgba($primary-color, 0.2) !important;
   }
 }
 
@@ -327,12 +356,11 @@ body {
 
   .el-input-number__decrease,
   .el-input-number__increase {
-    background: rgba($primary-color, 0.1) !important;
+    background: transparent !important;
     border-color: $border-color !important;
     color: $text-secondary !important;
 
     &:hover {
-      background: rgba($primary-color, 0.2) !important;
       color: $primary-color !important;
     }
   }
@@ -346,10 +374,12 @@ body {
 .el-menu-item {
   background: transparent !important;
   color: $text-secondary !important;
+  border-radius: $radius-md !important;
+  margin: 2px 0;
 
   &:hover,
   &.is-active {
-    background: rgba($primary-color, 0.2) !important;
+    background: rgba($primary-color, 0.15) !important;
     color: $primary-color !important;
   }
 }
@@ -382,6 +412,7 @@ body {
   th.el-table__cell {
     color: $text-secondary !important;
     font-weight: 500;
+    background: rgba(0, 0, 0, 0.2) !important;
   }
 
   td.el-table__cell {
@@ -389,28 +420,21 @@ body {
   }
 
   tr:hover > td.el-table__cell {
-    background: rgba($primary-color, 0.15) !important;
+    background: rgba($primary-color, 0.1) !important;
   }
 }
 
 // ============================================
-// 动画
+// 简洁动画
 // ============================================
-@keyframes pulse {
-  0%, 100% {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
     opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+    transform: translateY(0);
   }
 }
 
@@ -425,16 +449,12 @@ body {
   }
 }
 
-.animate-pulse {
-  animation: pulse 2s infinite;
-}
-
-.animate-glow {
-  animation: glow 2s infinite;
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.5s ease-out;
+  animation: slideUp 0.4s ease-out;
 }
 
 // ============================================

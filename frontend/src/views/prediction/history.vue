@@ -157,11 +157,9 @@ onMounted(() => {
 .page-header {
   h1 {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0 0 8px;
-    background: linear-gradient(90deg, $primary-color, $accent-cyan);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $text-primary;
   }
 
   p {

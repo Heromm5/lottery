@@ -97,19 +97,19 @@ function renderFrontChart(data: any[]) {
     xAxis: {
       type: 'category',
       data: chartData.map((item: any) => item.name),
-      axisLabel: { color: '#fff', interval: 4 },
-      axisLine: { lineStyle: { color: '#667eea' } }
+      axisLabel: { color: '#a0aec0', interval: 4 },
+      axisLine: { lineStyle: { color: '#4a90d9' } }
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#fff' },
-      splitLine: { lineStyle: { color: 'rgba(102,126,234,0.2)' } }
+      axisLabel: { color: '#a0aec0' },
+      splitLine: { lineStyle: { color: '#2a3a5a' } }
     },
     series: [{
       type: 'bar',
       data: chartData.map((item: any) => ({
         value: item.value,
-        itemStyle: { color: item.value > 30 ? '#ff4757' : '#00f5ff' }
+        itemStyle: { color: item.value > 30 ? '#ef4444' : '#00d4aa' }
       })),
       barWidth: '60%'
     }]

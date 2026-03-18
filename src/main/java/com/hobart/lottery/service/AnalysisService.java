@@ -1,5 +1,6 @@
 package com.hobart.lottery.service;
 
+import com.hobart.lottery.dto.DigitFrequencyDTO;
 import com.hobart.lottery.dto.FrequencyDTO;
 import com.hobart.lottery.dto.MissingDTO;
 import com.hobart.lottery.dto.SameNumberDTO;
@@ -160,5 +161,35 @@ public class AnalysisService {
      */
     public List<SameNumberDTO> findSameNumbers() {
         return analysisFacade.findSameNumbers();
+    }
+    
+    // ==================== 尾数分析 ====================
+    
+    /**
+     * 获取前区尾数频率
+     */
+    public List<DigitFrequencyDTO> getFrontDigitFrequency() {
+        return analysisFacade.getFrontDigitFrequency();
+    }
+    
+    /**
+     * 获取后区尾数频率
+     */
+    public List<DigitFrequencyDTO> getBackDigitFrequency() {
+        return analysisFacade.getBackDigitFrequency();
+    }
+    
+    /**
+     * 获取尾数和值统计
+     */
+    public Map<String, Integer> getDigitSumStats() {
+        return analysisFacade.getDigitSumStats();
+    }
+    
+    /**
+     * 获取区间分布统计
+     */
+    public Map<String, Map<String, Integer>> getZoneDistribution() {
+        return analysisFacade.getZoneDistribution();
     }
 }

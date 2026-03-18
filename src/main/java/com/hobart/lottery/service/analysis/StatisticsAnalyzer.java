@@ -1,5 +1,6 @@
 package com.hobart.lottery.service.analysis;
 
+import com.hobart.lottery.dto.DigitFrequencyDTO;
 import com.hobart.lottery.dto.SameNumberDTO;
 import com.hobart.lottery.entity.LotteryResult;
 import com.hobart.lottery.service.LotteryService;
@@ -181,5 +182,96 @@ public class StatisticsAnalyzer {
         }
         
         return distribution;
+    }
+    
+    /**
+     * 获取尾数频率统计（前区或后区）
+     * 尾数 = 号码 % 10
+     * 
+     * @param zone 前区或后区
+     * @return 各尾数的出现频率
+     */
+    public List<DigitFrequencyDTO> getDigitFrequency(com.hobart.lottery.domain.model.NumberZone zone) {
+        List<LotteryResult> results = lotteryService.getAllResults();
+        
+        // 统计各尾数出现次数
+        int[] digitCounts = new int[10];
+        int[] digitMissing = new int[10];  // 各尾数当前遗漏值
+        int totalCount = 0;
+        
+        // 按期号排序（从旧到新）
+        results.sort(Comparator.comparing(LotteryResult::getIssue));
+        
+        // 初始化遗漏值
+        Arrays.fill(digitMissing, 0);
+        
+        for (int i = 0; i < results.size(); i++) {
+            LotteryResult result = results.get(i);
+            int[] balls = zone == com.hobart.lottery.domain.model.NumberZone.FRONT 
+                ? result.getFrontBallArray() 
+                : result.getBackBallArray();
+            
+            for (int ball : balls) {
+                int digit = ball % 10;
+                digitCounts[digit]++;
+                totalCount++;
+                digitMissing[digit] = 0;
+            }
+            
+            // 更新遗漏值
+            for (int d = 0; d < 10; d++) {
+                digitMissing[d]++;
+            }
+        }
+        
+        // 构建结果列表
+        List<DigitFrequencyDTO> resultList = new ArrayList<>();
+        for (int d = 0; d < 10; d++) {
+            double frequency = totalCount > 0 ? (double) digitCounts[d] / totalCount * 100 : 0;
+            resultList.add(new DigitFrequencyDTO(
+                d,
+                digitCounts[d],
+                Math.round(frequency * 100) / 100.0,
+                digitMissing[d]
+            ));
+        }
+        
+        // 按出现次数降序排列
+        resultList.sort(Comparator.comparing(DigitFrequencyDTO::getCount).reversed());
+        
+        return resultList;
+    }
+    
+    /**
+     * 获取尾数和值统计（前区）
+     * 尾数和 = 前区5个号码的尾数之和
+     * 
+     * @return 尾数和值区间统计
+     */
+    public Map<String, Integer> getDigitSumStats() {
+        List<LotteryResult> results = lotteryService.getAllResults();
+        Map<String, Integer> stats = new LinkedHashMap<>();
+        
+        // 尾数和范围：0-45（5个号码，每个0-9）
+        String[] ranges = {"0-9", "10-19", "20-29", "30-39", "40-45"};
+        for (String range : ranges) {
+            stats.put(range, 0);
+        }
+        
+        for (LotteryResult result : results) {
+            int[] balls = result.getFrontBallArray();
+            int digitSum = 0;
+            for (int ball : balls) {
+                digitSum += ball % 10;
+            }
+            
+            if (digitSum <= 9) stats.merge("0-9", 1, Integer::sum);
+            else if (digitSum <= 19) stats.merge("10-19", 1, Integer::sum);
+            else if (digitSum <= 29) stats.merge("20-29", 1, Integer::sum);
+            else if (digitSum <= 39) stats.merge("30-39", 1, Integer::sum);
+            else stats.merge("40-45", 1, Integer::sum);
+        }
+        
+        return stats;
     }
 }

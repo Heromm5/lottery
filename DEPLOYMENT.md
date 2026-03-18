@@ -1,268 +1,304 @@
 # Lottery Java 项目部署文档
 
-## 1. 部署架构
+## 1. 部署架构（当前）
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        虚拟机 server01                       │
+│  192.168.202.101                                           │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │  Nginx (8080端口)                                   │   │
-│  │  ├── 前端静态文件: /usr/share/nginx/html/lottery/   │   │
-│  │  └── /api/ 代理到 localhost:9060                   │   │
+│  │  Spring Boot 应用 (9060端口)                         │   │
+│  │  ├── 后端 REST API: /api/*                          │   │
+│  │  └── 前端静态文件: classpath:/static/               │   │
 │  └─────────────────────────────────────────────────────┘   │
 │                          │                                  │
 │                          ▼                                  │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Java应用 (9060端口)                                │   │
-│  │  └── /opt/lottery/app/lottery-java.jar             │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                             │
 │  依赖服务:                                                   │
-│  ├── MySQL (3306) - 数据持久化                             │
-│  └── Redis (6379) - 缓存/消息队列                          │
+│  └── MySQL (192.168.202.101:3306) - 数据持久化            │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 2. 快速部署命令
+> **注**: 当前采用前后端一体化部署，Spring Boot 直接提供前端静态文件和 API。
 
-### 2.1 后端部署 (Java)
+---
+
+## 2. SSH 连接配置
+
+### 2.1 本地 SSH 配置
+
+文件: `C:\Users\69401\.ssh\config`
 
 ```bash
-# 1. 本地打包
-mvn clean package -DskipTests
-
-# 2. 上传到虚拟机
-scp target/lottery-java-1.0-SNAPSHOT.jar server01:/opt/lottery/app/lottery-java.jar
-
-# 3. SSH连接虚拟机，停止旧进程并重启
-ssh server01 << 'EOF'
-# 查找并停止旧进程
-ps aux | grep lottery-java.jar | grep -v grep | awk '{print $2}' | xargs -r kill -9
-
-# 等待端口释放
-sleep 2
-
-# 重新启动应用 (指定内存: 512m-1024m, 端口: 9060)
-cd /opt/lottery/app
-nohup java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060 > app.log 2>&1 &
-
-# 等待启动
-sleep 8
-
-# 验证启动
-netstat -tlnp | grep 9060
-curl -s http://localhost:9060/ 2>/dev/null | head -5
-EOF
+# 192.168.202.101
+Host server01
+    HostName 192.168.202.101
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_vm
+    PreferredAuthentications publickey
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
 ```
 
-### 2.2 前端部署 (Vue/Nginx)
+### 2.2 连接命令
 
 ```bash
-# 1. 本地打包前端
+# 使用别名连接
+ssh server01
+
+# 或直接使用 IP
+ssh root@192.168.202.101
+```
+
+---
+
+## 3. 虚拟机内部署信息
+
+| 项目 | 值 |
+|------|-----|
+| 虚拟机地址 | 192.168.202.101 |
+| 部署用户 | atguigu |
+| 后端端口 | 9060 |
+| 访问地址 | http://192.168.202.101:9060/ |
+| 应用目录 | /opt/lottery/app/ |
+| JAR 文件 | /opt/lottery/app/lottery-java.jar |
+| 日志文件 | /opt/lottery/app/app.log |
+| 数据库地址 | 192.168.202.101:3306 |
+| 数据库名称 | lottery |
+| 数据库用户 | root |
+
+---
+
+## 4. 快速部署命令
+
+### 4.1 本地构建
+
+```bash
+# 1. 构建前端
 cd frontend
 npm install
 npm run build
 
-# 2. 上传静态文件到虚拟机
-scp -r dist/* server01:/usr/share/nginx/html/lottery/
+# 2. 复制前端文件到静态资源目录
+cp -r dist/* ../src/main/resources/static/
 
-# 3. 重启Nginx使配置生效
-ssh server01 "systemctl restart nginx"
+# 3. 打包后端
+cd ..
+mvn clean package -DskipTests
 ```
 
-## 3. 端口访问说明
+### 4.2 部署到虚拟机
 
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| **前端页面** | http://server01:8080 | Vue构建的静态页面 |
-| **后端API** | http://server01:9060 | Spring Boot REST API |
-| **API代理** | http://server01:8080/api/* | Nginx代理到后端 |
+```bash
+# 1. 上传 JAR 文件
+scp target/lottery-java-1.0-SNAPSHOT.jar server01:/opt/lottery/app/lottery-java.jar
 
-> ⚠️ 注意：前端应用配置在 **8080 端口**，而非默认的 80 端口。
+# 2. SSH 连接并重启服务
+ssh server01 "pkill -f lottery-java.jar; sleep 2; cd /opt/lottery/app && nohup su - atguigu -c 'java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060' > app.log 2>&1 &"
+```
 
-## 4. 常见错误及解决方案
+### 4.3 验证部署
 
-### 4.1 端口占用错误
+```bash
+# 等待应用启动
+sleep 15
+
+# 检查端口
+ssh server01 "netstat -tlnp | grep 9060"
+
+# 测试访问
+curl http://192.168.202.101:9060/
+curl http://192.168.202.101:9060/api/lottery/latest
+```
+
+---
+
+## 5. 服务管理命令
+
+### 5.1 启动服务
+
+```bash
+# 使用 atguigu 用户启动（避免权限问题）
+ssh server01 "cd /opt/lottery/app && nohup su - atguigu -c 'java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060' > app.log 2>&1 &"
+```
+
+### 5.2 停止服务
+
+```bash
+ssh server01 "pkill -f lottery-java.jar"
+```
+
+### 5.3 查看日志
+
+```bash
+# 实时日志
+ssh server01 "tail -f /opt/lottery/app/app.log"
+
+# 最后 50 行
+ssh server01 "tail -50 /opt/lottery/app/app.log"
+```
+
+### 5.4 查看进程
+
+```bash
+ssh server01 "ps aux | grep java"
+```
+
+---
+
+## 6. 常见错误及解决方案
+
+### 6.1 端口占用错误
 
 **错误日志**:
 ```
 Caused by: java.net.BindException: 地址已在使用
 ```
 
-**原因**: 之前的Java进程未完全关闭，仍占用9060端口。
-
 **解决方案**:
 ```bash
-# 查找占用端口的进程
-netstat -tlnp | grep 9060
+# 1. 查找占用端口的进程
+ssh server01 "netstat -tlnp | grep 9060"
 
-# 强制杀死进程
-kill -9 <PID>
+# 2. 强制杀死进程
+ssh server01 "pkill -f lottery-java.jar"
 
-# 或使用pkill
-pkill -f lottery-java.jar
-```
-
-### 4.2 部署后应用启动失败
-
-**检查步骤**:
-```bash
-# 1. 查看应用日志
-tail -50 /opt/lottery/app/app.log
-
-# 2. 检查进程是否运行
-ps aux | grep lottery-java
-
-# 3. 验证端口监听
-netstat -tlnp | grep 9060
-
-# 4. 测试API响应
-curl http://localhost:9060/
-```
-
-### 4.3 前端页面显示CentOS欢迎页
-
-**原因**: 访问了80端口而非8080端口。
-
-**解决方案**:
-- 前端应用在 **8080 端口**，请访问 http://server01:8080
-- 或修改Nginx配置将前端改到80端口
-
-### 4.4 Nginx未启动
-
-**错误现象**: 无法访问前端页面
-
-**解决方案**:
-```bash
-# 检查Nginx状态
-systemctl status nginx
-
-# 启动Nginx
-systemctl start nginx
-
-# 设置开机自启
-systemctl enable nginx
-```
-
-## 5. 一键部署脚本
-
-在项目根目录创建 `deploy.sh`:
-
-```bash
-#!/bin/bash
-
-echo "=== Lottery Java 项目部署 ==="
-
-# 颜色输出
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m'
-
-# 1. 打包后端
-echo "1/4 打包后端..."
-mvn clean package -DskipTests -q
-if [ $? -ne 0 ]; then
-    echo -e "${RED}后端打包失败${NC}"
-    exit 1
-fi
-echo -e "${GREEN}✓ 后端打包成功${NC}"
-
-# 2. 打包前端
-echo "2/4 打包前端..."
-cd frontend
-npm install --silent
-npm run build > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo -e "${RED}前端打包失败${NC}"
-    exit 1
-fi
-cd ..
-echo -e "${GREEN}✓ 前端打包成功${NC}"
-
-# 3. 上传文件
-echo "3/4 上传文件到服务器..."
-scp target/lottery-java-1.0-SNAPSHOT.jar server01:/opt/lottery/app/lottery-java.jar
-scp -r frontend/dist/* server01:/usr/share/nginx/html/lottery/
-echo -e "${GREEN}✓ 文件上传成功${NC}"
-
-# 4. 重启服务
-echo "4/4 重启服务..."
-ssh server01 << 'EOF'
-# 停止旧进程
-pkill -f lottery-java.jar 2>/dev/null
+# 3. 等待端口释放
 sleep 2
 
-# 启动后端
-cd /opt/lottery/app
-nohup java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060 > app.log 2>&1 &
-
-# 重启Nginx
-systemctl restart nginx
-
-# 等待启动
-sleep 8
-
-# 验证
-if netstat -tlnp | grep -q 9060; then
-    echo -e "\033[0;32m✓ 后端服务运行正常 (端口9060)\033[0m"
-else
-    echo -e "\033[0;31m✗ 后端服务启动失败\033[0m"
-    tail -30 /opt/lottery/app/app.log
-fi
-
-if systemctl is-active --quiet nginx; then
-    echo -e "\033[0;32m✓ Nginx运行正常\033[0m"
-else
-    echo -e "\033[0;31m✗ Nginx启动失败\033[0m"
-fi
-EOF
-
-echo ""
-echo "=== 部署完成 ==="
-echo "前端页面: http://server01:8080"
-echo "后端API: http://server01:9060"
+# 4. 重新启动
+ssh server01 "cd /opt/lottery/app && nohup su - atguigu -c 'java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060' > app.log 2>&1 &"
 ```
 
-使用:
+### 6.2 前端页面 404
+
+**错误现象**: 访问 `/verification`、`/prediction` 等路径返回 404
+
+**原因**: IndexController 未正确配置 SPA 路由转发
+
+**解决方案**: 确保 IndexController 包含以下配置:
+```java
+@GetMapping(value = "/{path:[^\\.]+}")
+public String spaForward() {
+    return "forward:/index.html";
+}
+```
+
+重新打包部署后即可。
+
+### 6.3 JS/CSS 文件加载失败
+
+**错误日志**:
+```
+Failed to load module script: Expected a JavaScript module but...
+Content-Type: text/html
+```
+
+**原因**: SPA 路由转发规则错误，导致 JS/CSS 请求被错误转发到 index.html
+
+**解决方案**: 
+1. 确保路由规则只匹配不包含点（.）的路径：`/{path:[^\\.]+}`
+2. 不要使用 `/{path:[^\\.]*}` 或 `/{path:[^\\.]*}/**}` 这样的规则
+3. 验证 JS 文件的 Content-Type 是否正确（应为 application/javascript）
+
+### 6.4 前端静态文件缺失
+
+**错误现象**: 访问根路径返回 404
+
+**原因**: 打包时未先构建前端
+
+**解决方案**:
 ```bash
-chmod +x deploy.sh
-./deploy.sh
+# 1. 构建前端
+cd frontend && npm run build
+
+# 2. 复制到静态资源目录
+cp -r dist/* ../src/main/resources/static/
+
+# 3. 重新打包后端
+cd ..
+mvn clean package -DskipTests
 ```
 
-## 6. 服务管理命令
+---
 
-```bash
-# 后端服务
-ssh server01 "cd /opt/lottery/app && java -Xms512m -Xmx1024m -jar lottery-java.jar --server.port=9060"  # 启动
-ps aux | grep lottery-java.jar | awk '{print $2}' | xargs -r kill -9                         # 停止
-tail -f /opt/lottery/app/app.log                                                            # 查看日志
+## 7. 项目配置
 
-# Nginx服务
-ssh server01 "systemctl start nginx"   # 启动
-ssh server01 "systemctl stop nginx"    # 停止
-ssh server01 "systemctl restart nginx" # 重启
-ssh server01 "systemctl status nginx"  # 状态
+### 7.1 application.yml 关键配置
+
+```yaml
+server:
+  port: 9060
+
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.202.101:3306/lottery
+    username: root
+    password: Atguigu.123
 ```
 
-## 7. 配置信息
+### 7.2 CORS 配置
 
-| 项目 | 值 |
-|------|-----|
-| 虚拟机地址 | server01 |
-| 后端端口 | 9060 |
-| 前端端口 | 8080 |
-| 前端文件目录 | /usr/share/nginx/html/lottery/ |
-| 后端JAR目录 | /opt/lottery/app/lottery-java.jar |
-| 后端日志 | /opt/lottery/app/app.log |
+文件: `src/main/java/com/hobart/lottery/config/WebMvcConfig.java`
+
+```java
+@Override
+public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/api/**")
+            .allowedOriginPatterns("http://localhost:*", "http://192.168.202.101:*")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600);
+}
+```
+
+---
 
 ## 8. 验证清单
 
 部署完成后，依次检查:
 
-- [ ] `netstat -tlnp | grep 9060` → Java进程监听9060端口
-- [ ] `curl http://localhost:9060/` → 后端API可访问
-- [ ] `systemctl status nginx` → Nginx运行中
-- [ ] `curl http://server01:8080/` → 前端页面可访问
-- [ ] `curl http://server01:8080/api/xxx` → API代理正常工作
-- [ ] 查看日志 `tail -20 /opt/lottery/app/app.log` 无报错
+- [ ] `ssh server01 "netstat -tlnp | grep 9060"` → Java进程监听9060端口
+- [ ] `curl http://192.168.202.101:9060/` → 前端首页可访问
+- [ ] `curl http://192.168.202.101:9060/api/lottery/latest` → API 正常返回数据
+- [ ] 浏览器访问 http://192.168.202.101:9060/verification → 验证中心页面正常
+- [ ] `ssh server01 "tail -20 /opt/lottery/app/app.log"` → 日志无报错
+
+---
+
+## 9. 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 后端 | Spring Boot 2.7.18 + Java 8 |
+| ORM | MyBatis-Plus 3.5.5 |
+| 数据库 | MySQL 8.0 |
+| 前端 | Vue 3 + Vite + Element Plus |
+| 构建 | Maven + npm |
+
+---
+
+## 10. 目录结构
+
+```
+lottery-java/
+├── src/main/
+│   ├── java/com/hobart/lottery/
+│   │   ├── controller/      # 控制器
+│   │   ├── service/        # 业务逻辑
+│   │   ├── mapper/         # 数据访问
+│   │   ├── entity/        # 实体类
+│   │   ├── config/        # 配置类
+│   │   └── predictor/     # 预测算法
+│   └── resources/
+│       ├── application.yml
+│       ├── static/        # 前端静态文件（构建生成）
+│       └── db/            # 数据库脚本
+├── frontend/
+│   ├── src/              # Vue 源码
+│   ├── dist/             # 构建产物
+│   └── vite.config.ts
+└── target/               # Maven 构建输出
+```

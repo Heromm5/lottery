@@ -1,58 +1,59 @@
 // ============================================
-// 科技感数据大屏主题 - 变量定义
+// 简约现代深色主题 - 变量定义
 // ============================================
 
 // 品牌色
-$primary-color: #667eea;
-$primary-light: #764ba2;
-$primary-glow: rgba(102, 126, 234, 0.5);
+$primary-color: #4a90d9;
+$primary-light: #6ba3e0;
+$primary-dark: #357abd;
+$primary-glow: rgba(74, 144, 217, 0.3);
 
 // 辅助色
-$accent-cyan: #00f5ff;
-$accent-purple: #bf00ff;
-$accent-green: #00ff88;
-$accent-orange: #ff9500;
-$accent-red: #ff4757;
+$accent-cyan: #00d4aa;
+$accent-purple: #8b5cf6;
+$accent-green: #10b981;
+$accent-orange: #f59e0b;
+$accent-red: #ef4444;
 
-// 背景色
-$bg-dark: #050510;
-$bg-dark-lighter: #0d0d20;
-$bg-card: rgba(13, 13, 32, 0.85);
-$bg-card-hover: rgba(13, 13, 32, 0.95);
+// 背景色 - 简约深色
+$bg-dark: #0f0f1a;
+$bg-dark-lighter: #1a1a2e;
+$bg-card: #16213e;
+$bg-card-hover: #1f3460;
 
-// 边框色
-$border-color: rgba(102, 126, 234, 0.3);
-$border-glow: rgba(102, 126, 234, 0.6);
+// 边框色 - 更柔和
+$border-color: #2a3a5a;
+$border-light: #3a4a6a;
 
 // 文字色
 $text-primary: #ffffff;
-$text-secondary: rgba(255, 255, 255, 0.7);
-$text-muted: rgba(255, 255, 255, 0.5);
+$text-secondary: #a0aec0;
+$text-muted: #64748b;
 
 // 字体
-$font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 $font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-// 阴影
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-$shadow-glow: 0 0 20px rgba(102, 126, 234, 0.3);
+// 阴影 - 更柔和
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+$shadow-glow: 0 0 20px rgba(74, 144, 217, 0.2);
 
-// 圆角
-$radius-sm: 4px;
-$radius-md: 8px;
-$radius-lg: 12px;
-$radius-xl: 16px;
+// 圆角 - 更大的圆角
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 14px;
+$radius-xl: 20px;
 
 // 动画
 $transition-fast: 0.15s ease;
-$transition-normal: 0.3s ease;
-$transition-slow: 0.5s ease;
+$transition-normal: 0.25s ease;
+$transition-slow: 0.4s ease;
 
-// 球号颜色
-$ball-front-bg: linear-gradient(135deg, #667eea, #764ba2);
-$ball-back-bg: linear-gradient(135deg, #f093fb, #f5576c);
+// 球号颜色 - 更现代的渐变
+$ball-front-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
+$ball-back-bg: linear-gradient(135deg, #ec4899, #f43f5e);
 $ball-front-color: #ffffff;
 $ball-back-color: #ffffff;
 

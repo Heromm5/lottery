@@ -101,14 +101,14 @@ function renderChart(data: any[]) {
       type: 'category',
       data: issues,
       axisLabel: { color: '#fff', rotate: 45 },
-      axisLine: { lineStyle: { color: '#667eea' } }
+      axisLine: { lineStyle: { color: '#4a90d9' } }
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 35,
       axisLabel: { color: '#fff' },
-      splitLine: { lineStyle: { color: 'rgba(102,126,234,0.2)' } }
+      splitLine: { lineStyle: { color: '#2a3a5a' } }
     },
     series: [
       {
@@ -116,29 +116,29 @@ function renderChart(data: any[]) {
         type: 'scatter',
         symbolSize: 8,
         data: frontNumbers.map(nums => nums[0]),
-        lineStyle: { color: '#667eea' },
-        itemStyle: { color: '#667eea' }
+        lineStyle: { color: '#4a90d9' },
+        itemStyle: { color: '#4a90d9' }
       },
       {
         name: '前区2',
         type: 'scatter',
         symbolSize: 8,
         data: frontNumbers.map(nums => nums[1]),
-        itemStyle: { color: '#667eea', opacity: 0.8 }
+        itemStyle: { color: '#00d4aa', opacity: 0.8 }
       },
       {
         name: '前区3',
         type: 'scatter',
         symbolSize: 8,
         data: frontNumbers.map(nums => nums[2]),
-        itemStyle: { color: '#667eea', opacity: 0.6 }
+        itemStyle: { color: '#8b5cf6', opacity: 0.6 }
       },
       {
         name: '前区4',
         type: 'scatter',
         symbolSize: 8,
         data: frontNumbers.map(nums => nums[3]),
-        itemStyle: { color: '#667eea', opacity: 0.4 }
+        itemStyle: { color: '#f59e0b', opacity: 0.4 }
       },
       {
         name: '前区5',

@@ -127,22 +127,22 @@ function renderChart(data: AssociationRule[]) {
     xAxis: {
       type: 'category',
       data: topRules.map(r => `${r.antecedent.join('-')}→${r.consequent.join('-')}`),
-      axisLabel: { color: '#fff', rotate: 45, fontSize: 10 },
-      axisLine: { lineStyle: { color: '#667eea' } }
+      axisLabel: { color: '#a0aec0', rotate: 45, fontSize: 10 },
+      axisLine: { lineStyle: { color: '#4a90d9' } }
     },
     yAxis: {
       type: 'value',
       name: '提升度',
-      nameTextStyle: { color: '#fff' },
-      axisLabel: { color: '#fff' },
-      splitLine: { lineStyle: { color: 'rgba(102,126,234,0.2)' } }
+      nameTextStyle: { color: '#a0aec0' },
+      axisLabel: { color: '#a0aec0' },
+      splitLine: { lineStyle: { color: '#2a3a5a' } }
     },
     series: [{
       type: 'bar',
       data: topRules.map(r => ({
         value: r.lift,
         itemStyle: {
-          color: r.lift > 1.5 ? '#ff4757' : r.lift > 1 ? '#ffa502' : '#00f5ff'
+          color: r.lift > 1.5 ? '#ef4444' : r.lift > 1 ? '#f59e0b' : '#00d4aa'
         }
       })),
       barWidth: '60%'

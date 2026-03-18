@@ -83,13 +83,13 @@ function renderChart(data: any[]) {
     xAxis: {
       type: 'category',
       data: chartData.map((item: any) => item.name),
-      axisLabel: { color: '#fff' },
-      axisLine: { lineStyle: { color: '#667eea' } }
+      axisLabel: { color: '#a0aec0' },
+      axisLine: { lineStyle: { color: '#4a90d9' } }
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#fff' },
-      splitLine: { lineStyle: { color: 'rgba(102,126,234,0.2)' } }
+      axisLabel: { color: '#a0aec0' },
+      splitLine: { lineStyle: { color: '#2a3a5a' } }
     },
     series: [{
       type: 'bar',
@@ -97,8 +97,8 @@ function renderChart(data: any[]) {
         value: item.value,
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#667eea' },
-            { offset: 1, color: '#764ba2' }
+            { offset: 0, color: '#4a90d9' },
+            { offset: 1, color: '#6ba3e0' }
           ])
         }
       })),

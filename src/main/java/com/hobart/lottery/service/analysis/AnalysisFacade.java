@@ -1,6 +1,7 @@
 package com.hobart.lottery.service.analysis;
 
 import com.hobart.lottery.domain.model.NumberZone;
+import com.hobart.lottery.dto.DigitFrequencyDTO;
 import com.hobart.lottery.dto.FrequencyDTO;
 import com.hobart.lottery.dto.MissingDTO;
 import com.hobart.lottery.dto.SameNumberDTO;
@@ -133,5 +134,37 @@ public class AnalysisFacade {
     
     public StatisticsAnalyzer getStatisticsAnalyzer() {
         return statisticsAnalyzer;
+    }
+    
+    // ==================== 尾数分析 ====================
+    
+    /**
+     * 获取前区尾数频率
+     */
+    public List<DigitFrequencyDTO> getFrontDigitFrequency() {
+        return statisticsAnalyzer.getDigitFrequency(NumberZone.FRONT);
+    }
+    
+    /**
+     * 获取后区尾数频率
+     */
+    public List<DigitFrequencyDTO> getBackDigitFrequency() {
+        return statisticsAnalyzer.getDigitFrequency(NumberZone.BACK);
+    }
+    
+    /**
+     * 获取尾数和值统计
+     */
+    public Map<String, Integer> getDigitSumStats() {
+        return statisticsAnalyzer.getDigitSumStats();
+    }
+    
+    // ==================== 区间分析 ====================
+    
+    /**
+     * 获取区间分布统计
+     */
+    public Map<String, Map<String, Integer>> getZoneDistribution() {
+        return statisticsAnalyzer.getZoneDistribution();
     }
 }

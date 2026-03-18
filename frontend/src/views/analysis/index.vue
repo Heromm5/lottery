@@ -10,6 +10,8 @@
           <el-radio-button value="frequency">频率统计</el-radio-button>
           <el-radio-button value="missing">遗漏分析</el-radio-button>
           <el-radio-button value="trend">走势分析</el-radio-button>
+          <el-radio-button value="digit">尾数分析</el-radio-button>
+          <el-radio-button value="zone">区间分析</el-radio-button>
           <el-radio-button value="association">关联分析</el-radio-button>
         </el-radio-group>
       </div>
@@ -24,6 +26,8 @@ import { computed } from 'vue'
 import Frequency from './frequency.vue'
 import Missing from './missing.vue'
 import Trend from './trend.vue'
+import Digit from './digit.vue'
+import Zone from './zone.vue'
 import Association from './association.vue'
 
 const activeTab = ref('frequency')
@@ -33,6 +37,8 @@ const currentComponent = computed(() => {
     frequency: Frequency,
     missing: Missing,
     trend: Trend,
+    digit: Digit,
+    zone: Zone,
     association: Association
   }
   return map[activeTab.value] || Frequency
@@ -57,9 +63,7 @@ const currentComponent = computed(() => {
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 8px;
-    background: linear-gradient(90deg, $primary-color, $accent-cyan);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $text-primary;
   }
 
   p {

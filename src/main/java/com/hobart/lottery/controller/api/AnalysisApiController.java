@@ -4,6 +4,7 @@ import com.hobart.lottery.common.result.Result;
 import com.hobart.lottery.domain.model.AssociationRule;
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.dto.AccuracyStatsDTO;
+import com.hobart.lottery.dto.DigitFrequencyDTO;
 import com.hobart.lottery.dto.FrequencyDTO;
 import com.hobart.lottery.dto.MissingDTO;
 import com.hobart.lottery.service.AnalysisService;
@@ -151,5 +152,35 @@ public class AnalysisApiController {
             @RequestParam(defaultValue = "50") int topN) {
         NumberZone numberZone = "back".equalsIgnoreCase(zone) ? NumberZone.BACK : NumberZone.FRONT;
         return Result.success(associationAnalyzer.getAssociationNetwork(numberZone, topN));
+    }
+    
+    /**
+     * 尾数频率统计
+     */
+    @GetMapping("/digit/frequency")
+    public Result<List<DigitFrequencyDTO>> getDigitFrequency(
+            @RequestParam(defaultValue = "front") String zone) {
+        NumberZone numberZone = "back".equalsIgnoreCase(zone) ? NumberZone.BACK : NumberZone.FRONT;
+        if (numberZone == NumberZone.FRONT) {
+            return Result.success(analysisService.getFrontDigitFrequency());
+        } else {
+            return Result.success(analysisService.getBackDigitFrequency());
+        }
+    }
+    
+    /**
+     * 尾数和值统计
+     */
+    @GetMapping("/digit/sum")
+    public Result<Map<String, Integer>> getDigitSumStats() {
+        return Result.success(analysisService.getDigitSumStats());
+    }
+    
+    /**
+     * 区间分布统计
+     */
+    @GetMapping("/zone/distribution")
+    public Result<Map<String, Map<String, Integer>>> getZoneDistribution() {
+        return Result.success(analysisService.getZoneDistribution());
     }
 }

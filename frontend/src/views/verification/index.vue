@@ -542,11 +542,9 @@ function formatDateTime(dateStr: string) {
 .page-header {
   h1 {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0 0 8px;
-    background: linear-gradient(90deg, $primary-color, $accent-cyan);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $text-primary;
   }
 
   p {
@@ -695,21 +693,18 @@ function formatDateTime(dateStr: string) {
   font-size: 14px;
 
   &.rank-1 {
-    background: linear-gradient(135deg, #ffd700, #ffaa00);
-    color: #333;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+    background: #fbbf24;
+    color: #1a1a2e;
   }
 
   &.rank-2 {
-    background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
-    color: #333;
-    box-shadow: 0 0 12px rgba(192, 192, 192, 0.5);
+    background: #9ca3af;
+    color: #1a1a2e;
   }
 
   &.rank-3 {
-    background: linear-gradient(135deg, #cd7f32, #b87333);
+    background: #d97706;
     color: #fff;
-    box-shadow: 0 0 12px rgba(205, 127, 50, 0.5);
   }
 }
 
