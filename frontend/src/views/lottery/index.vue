@@ -191,9 +191,17 @@ function resetForm() {
   updateBackBalls()
 }
 
-// 打开添加对话框时重置表单
-function openAddDialog() {
+// 打开添加对话框时重置表单，并默认期号为最新开奖期号+1
+async function openAddDialog() {
   resetForm()
+  try {
+    const stats = await lotteryApi.getStats() as { nextIssue?: string }
+    if (stats?.nextIssue) {
+      form.issue = stats.nextIssue
+    }
+  } catch (_) {
+    // 忽略，用户可手动输入期号
+  }
   showAddDialog.value = true
 }
 

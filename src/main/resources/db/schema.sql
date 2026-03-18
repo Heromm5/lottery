@@ -18,6 +18,7 @@ CREATE TABLE `prediction_records` (
     `back_ball1` INT NULL COMMENT '后区第1个号码(1-12)',
     `back_ball2` INT NULL COMMENT '后区第2个号码(1-12)',
     `is_verified` TINYINT DEFAULT 0 COMMENT '是否已验证(0-未验证,1-已验证)',
+    `is_final` TINYINT DEFAULT 0 COMMENT '是否当次最终预测(0-否,1-是，每期生成时选中的Top N注)',
     `front_hit_count` INT DEFAULT NULL COMMENT '前区命中数(0-5)',
     `back_hit_count` INT DEFAULT NULL COMMENT '后区命中数(0-2)',
     `prize_level` VARCHAR(20) DEFAULT NULL COMMENT '中奖等级(一等奖~七等奖/未中奖)',

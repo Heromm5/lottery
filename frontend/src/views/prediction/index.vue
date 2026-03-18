@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   MagicStick, Star, Lightning,
@@ -239,6 +239,16 @@ async function generatePredictions() {
     selectedResults.value = Array.from({ length: count }, (_, i) => i)
     finalResults.value = selectedResults.value.map(i => sortedResults[i])
 
+    // 将选中的最终预测标记到后端，便于在预测历史/验证历史中突出显示
+    const finalIds = finalResults.value.map(r => r.id).filter((id): id is number => id != null)
+    if (finalIds.length > 0) {
+      try {
+        await predictionApi.markFinal(finalIds)
+      } catch (e) {
+        console.warn('标记最终预测失败:', e)
+      }
+    }
+
     ElMessage.success(`生成 ${allResults.length} 注预测，已自动选择概率最高的 ${finalResults.value.length} 注`)
   } catch (error) {
     ElMessage.error('预测生成失败')
@@ -253,6 +263,16 @@ function clearAll() {
   selectedResults.value = []
   finalResults.value = []
 }
+
+// 进入页面时拉取下一预测期号并默认填充（最新预测期号+1，无预测时为最新开奖期号+1）
+onMounted(async () => {
+  try {
+    const next = await predictionApi.getNextIssue()
+    targetIssue.value = (next as string) ?? ''
+  } catch (_) {
+    // 忽略，保留为空时后端会按开奖期号+1 处理
+  }
+})
 </script>
 
 <style lang="scss" scoped>

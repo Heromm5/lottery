@@ -264,8 +264,18 @@
         </el-button>
       </div>
       <div class="tech-card__body">
-        <el-table :data="historyList" class="verify-table" style="width: 100%" v-loading="historyLoading">
+        <el-table :data="historyList" class="verify-table" style="width: 100%" v-loading="historyLoading"
+          :row-class-name="({ row }: { row: VerificationHistoryRecord }) => row.isFinal === 1 ? 'row--final' : ''"
+        >
           <el-table-column prop="targetIssue" label="期号" align="center" />
+          <el-table-column label="标记" width="56" align="center">
+            <template #default="{ row }">
+              <el-tooltip v-if="row.isFinal === 1" content="最终预测" placement="top">
+                <span class="final-mark"><el-icon><Star /></el-icon></span>
+              </el-tooltip>
+              <span v-else>--</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="methodName" label="方法" />
           <el-table-column label="预测号码" align="center" min-width="180">
             <template #default="{ row }">
@@ -358,7 +368,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
-import { DataAnalysis, List, Refresh, RefreshRight, Trophy, Histogram } from '@element-plus/icons-vue'
+import { DataAnalysis, List, Refresh, RefreshRight, Trophy, Histogram, Star } from '@element-plus/icons-vue'
 import { verificationApi, type VerificationHistoryRecord } from '@/api'
 import type { AccuracyStats, BacktestResult } from '@/types'
 import { PREDICTION_METHODS, getMethodDisplayName } from '@/types'
@@ -617,6 +627,22 @@ function formatDateTime(dateStr: string) {
   tr:hover > td.el-table__cell {
     background: rgba($primary-color, 0.15) !important;
   }
+
+  tr.row--final > td.el-table__cell {
+    background: rgba($accent-orange, 0.08);
+  }
+  tr.row--final:hover > td.el-table__cell {
+    background: rgba($accent-orange, 0.12) !important;
+  }
+}
+
+.final-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $accent-orange;
+  font-size: 14px;
+  cursor: default;
 }
 
 // 号码对比样式

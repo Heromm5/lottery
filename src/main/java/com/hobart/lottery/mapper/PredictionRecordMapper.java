@@ -42,4 +42,10 @@ public interface PredictionRecordMapper extends BaseMapper<PredictionRecord> {
      */
     @Select("SELECT COUNT(*) FROM prediction_records WHERE predict_method = #{method}")
     int countByMethod(String method);
+
+    /**
+     * 获取最大的预测目标期号（用于计算下一预测期号）
+     */
+    @Select("SELECT target_issue FROM prediction_records ORDER BY target_issue DESC LIMIT 1")
+    String selectMaxTargetIssue();
 }

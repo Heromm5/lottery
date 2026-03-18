@@ -1,5 +1,8 @@
 package com.hobart.lottery.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hobart.lottery.domain.model.PredictionMethod;
 import com.hobart.lottery.dto.PredictionResultDTO;
@@ -267,6 +270,56 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
     public List<PredictionResultDTO> getRecentPredictions(int limit) {
         List<PredictionRecord> records = baseMapper.selectRecentRecords(limit);
         return convertToDTO(records);
+    }
+
+    /**
+     * 获取下一预测期号（最新预测期号+1；若无预测记录则取最新开奖期号+1）
+     */
+    public String getNextPredictionIssue() {
+        String maxTarget = baseMapper.selectMaxTargetIssue();
+        if (maxTarget != null && !maxTarget.isEmpty()) {
+            try {
+                int num = Integer.parseInt(maxTarget.trim());
+                return String.valueOf(num + 1);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return lotteryService.generateNextIssue();
+    }
+
+    /**
+     * 分页查询预测记录，按预测期号倒序，支持按验证状态筛选
+     * @param pageParam 分页参数
+     * @param status 筛选状态: all-全部, verified-已开奖(已验证), unverified-未开奖(未验证)
+     */
+    public IPage<PredictionRecord> pageByFilter(Page<PredictionRecord> pageParam, String status) {
+        LambdaQueryWrapper<PredictionRecord> wrapper = new LambdaQueryWrapper<>();
+        // 预测期号倒序，标记为最终预测(is_final=1)的优先显示
+        wrapper.orderByDesc(PredictionRecord::getTargetIssue)
+                .orderByDesc(PredictionRecord::getIsFinal);
+        if ("verified".equalsIgnoreCase(status)) {
+            wrapper.eq(PredictionRecord::getIsVerified, 1);
+        } else if ("unverified".equalsIgnoreCase(status)) {
+            wrapper.eq(PredictionRecord::getIsVerified, 0);
+        }
+        return page(pageParam, wrapper);
+    }
+
+    /**
+     * 将指定记录标记为当次最终预测（生成时选中的 Top N 注）
+     */
+    @Transactional
+    public void markAsFinal(List<Long> recordIds) {
+        if (recordIds == null || recordIds.isEmpty()) {
+            return;
+        }
+        for (Long id : recordIds) {
+            PredictionRecord record = getById(id);
+            if (record != null) {
+                record.setIsFinal(1);
+                updateById(record);
+            }
+        }
     }
 
     /**

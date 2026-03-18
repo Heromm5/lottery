@@ -29,10 +29,10 @@ export const predictionApi = {
       params: { limit }
     }),
 
-  // 分页查询预测记录
-  getList: (page = 1, size = 20) =>
-    request.get<Result<PageResult<PredictionRecord>>>('/prediction/list', {
-      params: { page, size }
+  // 分页查询预测记录（status: all | verified | unverified），接口返回已解包为 PageResult
+  getList: (page = 1, size = 50, status = 'all') =>
+    request.get<PageResult<PredictionRecord>>('/prediction/list', {
+      params: { page, size, status }
     }),
 
   // 获取预测详情
@@ -41,5 +41,13 @@ export const predictionApi = {
 
   // 为预测结果评分（返回带分数的结果，按分数降序）
   score: (predictions: PredictionResult[]) =>
-    request.post<Result<PredictionResult[]>>('/prediction/score', predictions)
+    request.post<Result<PredictionResult[]>>('/prediction/score', predictions),
+
+  // 将指定记录标记为当次最终预测（生成时选中的 Top N 注）
+  markFinal: (recordIds: number[]) =>
+    request.post<Result<void>>('/prediction/mark-final', recordIds),
+
+  // 获取下一预测期号（最新预测期号+1；无预测时为最新开奖期号+1）
+  getNextIssue: () =>
+    request.get<Result<string>>('/prediction/next-issue')
 }

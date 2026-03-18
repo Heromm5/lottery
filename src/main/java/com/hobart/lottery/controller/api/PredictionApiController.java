@@ -3,6 +3,8 @@ package com.hobart.lottery.controller.api;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hobart.lottery.common.result.Result;
+import com.hobart.lottery.domain.model.PredictionMethod;
+import com.hobart.lottery.dto.PredictionRecordListDTO;
 import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.entity.PredictionRecord;
 import com.hobart.lottery.service.PredictionService;
@@ -74,23 +76,56 @@ public class PredictionApiController {
     }
 
     /**
-     * 分页查询预测记录
+     * 分页查询预测记录（按预测期号倒序，支持全部/已开奖/未开奖筛选）
      */
     @GetMapping("/list")
     public Result<Map<String, Object>> getList(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false, defaultValue = "all") String status) {
+        String filterStatus = (status == null || status.isEmpty()) ? "all" : status;
         Page<PredictionRecord> pageParam = new Page<>(page, size);
-        IPage<PredictionRecord> resultPage = predictionService.page(pageParam);
+        IPage<PredictionRecord> resultPage = predictionService.pageByFilter(pageParam, filterStatus);
+        
+        List<PredictionRecordListDTO> records = resultPage.getRecords().stream()
+                .map(this::toListDTO)
+                .collect(Collectors.toList());
         
         Map<String, Object> result = new HashMap<>();
-        result.put("records", resultPage.getRecords());
+        result.put("records", records);
         result.put("total", resultPage.getTotal());
         result.put("size", resultPage.getSize());
         result.put("current", resultPage.getCurrent());
         result.put("pages", resultPage.getPages());
         
         return Result.success(result);
+    }
+
+    private PredictionRecordListDTO toListDTO(PredictionRecord r) {
+        PredictionRecordListDTO dto = new PredictionRecordListDTO();
+        dto.setId(r.getId());
+        dto.setTargetIssue(r.getTargetIssue());
+        dto.setPredictMethod(r.getPredictMethod());
+        dto.setMethodName(PredictionMethod.getDisplayName(r.getPredictMethod()));
+        dto.setFrontBalls(r.getFrontBalls());
+        dto.setBackBalls(r.getBackBalls());
+        dto.setIsVerified(r.getIsVerified());
+        dto.setIsFinal(r.getIsFinal() != null ? r.getIsFinal() : 0);
+        dto.setFrontHitCount(r.getFrontHitCount());
+        dto.setBackHitCount(r.getBackHitCount());
+        dto.setPrizeLevel(r.getPrizeLevel());
+        dto.setCreatedAt(r.getCreatedAt());
+        dto.setVerifiedAt(r.getVerifiedAt());
+        return dto;
+    }
+
+    /**
+     * 将指定预测记录标记为当次最终预测（生成时选中的 Top N 注）
+     */
+    @PostMapping("/mark-final")
+    public Result<Void> markFinal(@RequestBody List<Long> recordIds) {
+        predictionService.markAsFinal(recordIds);
+        return Result.success();
     }
 
     /**
@@ -103,6 +138,14 @@ public class PredictionApiController {
             return Result.success(record);
         }
         return Result.fail("预测记录不存在");
+    }
+
+    /**
+     * 获取下一预测期号（最新预测期号+1；无预测时为最新开奖期号+1）
+     */
+    @GetMapping("/next-issue")
+    public Result<String> getNextPredictionIssue() {
+        return Result.success(predictionService.getNextPredictionIssue());
     }
 
     /**

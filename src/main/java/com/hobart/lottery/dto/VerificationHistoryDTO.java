@@ -76,4 +76,9 @@ public class VerificationHistoryDTO {
      * 验证时间
      */
     private String verifiedAt;
+
+    /**
+     * 是否当次最终预测（生成时选中的 Top N 注）
+     */
+    private Integer isFinal;
 }

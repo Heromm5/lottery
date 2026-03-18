@@ -58,6 +58,11 @@ public class PredictionRecord {
     private Integer isVerified;
 
     /**
+     * 是否当次最终预测 0-否 1-是（生成时选中的 Top N 注）
+     */
+    private Integer isFinal;
+
+    /**
      * 前区命中数
      */
     private Integer frontHitCount;
@@ -76,17 +81,47 @@ public class PredictionRecord {
     private LocalDateTime verifiedAt;
 
     /**
-     * 获取前区号码数组
+     * 获取前区号码数组（空安全：若单独字段未填则从 frontBalls 字符串解析）
      */
     public int[] getFrontBallArray() {
-        return new int[]{frontBall1, frontBall2, frontBall3, frontBall4, frontBall5};
+        if (frontBall1 != null && frontBall2 != null && frontBall3 != null && frontBall4 != null && frontBall5 != null) {
+            return new int[]{frontBall1, frontBall2, frontBall3, frontBall4, frontBall5};
+        }
+        if (frontBalls == null || frontBalls.isEmpty()) {
+            return new int[0];
+        }
+        String[] parts = frontBalls.split(",");
+        int[] arr = new int[Math.min(5, parts.length)];
+        for (int i = 0; i < arr.length; i++) {
+            try {
+                arr[i] = Integer.parseInt(parts[i].trim());
+            } catch (NumberFormatException e) {
+                return new int[0];
+            }
+        }
+        return arr;
     }
 
     /**
-     * 获取后区号码数组
+     * 获取后区号码数组（空安全：若单独字段未填则从 backBalls 字符串解析）
      */
     public int[] getBackBallArray() {
-        return new int[]{backBall1, backBall2};
+        if (backBall1 != null && backBall2 != null) {
+            return new int[]{backBall1, backBall2};
+        }
+        if (backBalls == null || backBalls.isEmpty()) {
+            return new int[0];
+        }
+        String[] parts = backBalls.split(",");
+        int[] arr = new int[Math.min(2, parts.length)];
+        for (int i = 0; i < arr.length; i++) {
+            try {
+                arr[i] = Integer.parseInt(parts[i].trim());
+            } catch (NumberFormatException e) {
+                return new int[0];
+            }
+        }
+        return arr;
     }
 
     /**

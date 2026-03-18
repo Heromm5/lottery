@@ -373,11 +373,12 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
      * @return 验证历史列表
      */
     public List<VerificationHistoryDTO> getVerificationHistory(int page, int size) {
-        // 查询已验证的预测记录
+        // 查询已验证的预测记录：预测期号倒序，标记为最终预测(is_final=1)的优先显示
         LambdaQueryWrapper<PredictionRecord> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PredictionRecord::getIsVerified, 1)
-                .orderByDesc(PredictionRecord::getVerifiedAt)
-                .orderByDesc(PredictionRecord::getTargetIssue);
+                .orderByDesc(PredictionRecord::getTargetIssue)
+                .orderByDesc(PredictionRecord::getIsFinal)
+                .orderByDesc(PredictionRecord::getVerifiedAt);
 
         // 手动分页（因为需要联表查询）
         int offset = (page - 1) * size;
@@ -402,6 +403,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
             dto.setPrizeLevel(record.getPrizeLevel());
             dto.setCreatedAt(record.getCreatedAt() != null ? record.getCreatedAt().toString() : "");
             dto.setVerifiedAt(record.getVerifiedAt() != null ? record.getVerifiedAt().toString() : "");
+            dto.setIsFinal(record.getIsFinal() != null ? record.getIsFinal() : 0);
 
             if (drawResult != null) {
                 dto.setActualFrontBallsStr(drawResult.getFrontBalls());

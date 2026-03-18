@@ -36,9 +36,10 @@ export interface PredictionRecord {
   id: number
   targetIssue: string
   methodName: string
-  frontBalls: number[]
-  backBalls: number[]
+  frontBalls: number[] | string
+  backBalls: number[] | string
   isVerified: number
+  isFinal?: number
   frontHitCount: number
   backHitCount: number
   prizeLevel: string

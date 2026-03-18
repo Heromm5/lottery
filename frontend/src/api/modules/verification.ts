@@ -16,6 +16,8 @@ export interface VerificationHistoryRecord {
   prizeLevel: string
   createdAt: string
   verifiedAt: string
+  /** 是否当次最终预测（生成时选中的 Top N 注） */
+  isFinal?: number
 }
 
 // 验证相关 API
