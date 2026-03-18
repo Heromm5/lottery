@@ -270,55 +270,24 @@
           <el-table-column prop="targetIssue" label="期号" align="center" />
           <el-table-column label="标记" width="56" align="center">
             <template #default="{ row }">
-              <el-tooltip v-if="row.isFinal === 1" content="最终预测" placement="top">
-                <span class="final-mark"><el-icon><Star /></el-icon></span>
-              </el-tooltip>
-              <span v-else>--</span>
+              <FinalMark :is-final="row.isFinal" />
             </template>
           </el-table-column>
           <el-table-column prop="methodName" label="方法" />
           <el-table-column label="预测号码" align="center" min-width="180">
             <template #default="{ row }">
-              <div class="balls-compare">
-                <div class="balls-cell balls-cell--front">
-                  <span
-                    v-for="n in parseBalls(row.frontBallsStr)"
-                    :key="'pred-front-' + n"
-                    class="ball ball--front ball--xs"
-                    :class="{ 'ball--hit': isHit(row.actualFrontBallsStr, n) }"
-                  >{{ n }}</span>
-                </div>
-                <span class="balls-separator">+</span>
-                <div class="balls-cell balls-cell--back">
-                  <span
-                    v-for="n in parseBalls(row.backBallsStr)"
-                    :key="'pred-back-' + n"
-                    class="ball ball--back ball--xs"
-                    :class="{ 'ball--hit': isHit(row.actualBackBallsStr, n) }"
-                  >{{ n }}</span>
-                </div>
-              </div>
+              <BallDisplay
+                :front-balls="row.frontBallsStr"
+                :back-balls="row.backBallsStr"
+                :hit-front="parseBalls(row.actualFrontBallsStr)"
+                :hit-back="parseBalls(row.actualBackBallsStr)"
+                size="xs"
+              />
             </template>
           </el-table-column>
           <el-table-column label="开奖号码" align="center" min-width="180">
             <template #default="{ row }">
-              <div class="balls-compare">
-                <div class="balls-cell balls-cell--front">
-                  <span
-                    v-for="n in parseBalls(row.actualFrontBallsStr)"
-                    :key="'actual-front-' + n"
-                    class="ball ball--front ball--xs"
-                  >{{ n }}</span>
-                </div>
-                <span class="balls-separator">+</span>
-                <div class="balls-cell balls-cell--back">
-                  <span
-                    v-for="n in parseBalls(row.actualBackBallsStr)"
-                    :key="'actual-back-' + n"
-                    class="ball ball--back ball--xs"
-                  >{{ n }}</span>
-                </div>
-              </div>
+              <BallDisplay :front-balls="row.actualFrontBallsStr" :back-balls="row.actualBackBallsStr" size="xs" />
             </template>
           </el-table-column>
           <el-table-column label="命中" align="center">
@@ -367,11 +336,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
-import { DataAnalysis, List, Refresh, RefreshRight, Trophy, Histogram, Star } from '@element-plus/icons-vue'
+import { DataAnalysis, List, Refresh, RefreshRight, Trophy, Histogram } from '@element-plus/icons-vue'
 import { verificationApi, type VerificationHistoryRecord } from '@/api'
 import type { AccuracyStats, BacktestResult } from '@/types'
 import { PREDICTION_METHODS, getMethodDisplayName } from '@/types'
+import { BallDisplay, FinalMark } from '@/components/common'
+import { parseBalls } from '@/composables/useBalls'
+import { formatDateTime } from '@/composables/useDateTime'
 
 const accuracyStats = ref<AccuracyStats[]>([])
 const historyList = ref<VerificationHistoryRecord[]>([])
@@ -398,16 +369,6 @@ const unverifiedIssues = ref<string[]>([])
 const selectedIssue = ref('')
 const verifying = ref(false)
 
-function parseBalls(ballsStr: string): number[] {
-  if (!ballsStr || ballsStr === '-') return []
-  return ballsStr.split(',').map(Number).filter(n => !isNaN(n))
-}
-
-function isHit(actualBallsStr: string, ball: number): boolean {
-  if (!actualBallsStr || actualBallsStr === '-') return false
-  const actualBalls = parseBalls(actualBallsStr)
-  return actualBalls.includes(ball)
-}
 
 async function fetchStats() {
   try {
@@ -520,11 +481,6 @@ onMounted(() => {
   fetchRanking()
 })
 
-// 格式化日期时间
-function formatDateTime(dateStr: string) {
-  if (!dateStr) return '-'
-  return dayjs(dateStr).format('YYYY-MM-DD HH:mm:ss')
-}
 </script>
 
 <style lang="scss" scoped>
@@ -636,57 +592,6 @@ function formatDateTime(dateStr: string) {
   }
 }
 
-.final-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: $accent-orange;
-  font-size: 14px;
-  cursor: default;
-}
-
-// 号码对比样式
-.balls-compare {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-
-.balls-separator {
-  color: $text-muted;
-  font-weight: 600;
-  margin: 0 1px;
-  font-size: 10px;
-}
-
-.balls-cell {
-  display: flex;
-  gap: 1px;
-  align-items: center;
-
-  &--front {
-    gap: 2px;
-  }
-
-  &--back {
-    gap: 1px;
-  }
-}
-
-// 命中样式
-.ball--hit {
-  background: $accent-green !important;
-  box-shadow: 0 0 8px $accent-green !important;
-  color: $bg-dark !important;
-}
-
-// 超小球号样式
-.ball--xs {
-  width: 24px !important;
-  height: 24px !important;
-  font-size: 12px !important;
-}
 
 .pagination-wrap {
   display: flex;

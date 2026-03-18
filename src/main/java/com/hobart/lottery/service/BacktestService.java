@@ -2,7 +2,8 @@ package com.hobart.lottery.service;
 
 import com.hobart.lottery.dto.BacktestResultDTO;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.predictor.*;
+import com.hobart.lottery.predictor.BasePredictor;
+import com.hobart.lottery.predictor.PredictorRegistry;
 import com.hobart.lottery.service.analysis.FrequencyAnalyzer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,17 +13,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-/**
- * 批量历史回测服务
- * 使用历史开奖数据测试各预测算法的表现
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BacktestService {
 
     private final LotteryService lotteryService;
-    private final AnalysisService analysisService;
+    private final PredictorRegistry predictorRegistry;
     private final FrequencyAnalyzer frequencyAnalyzer;
     
     // 大乐透官方奖金（税前，元）
@@ -236,21 +233,8 @@ public class BacktestService {
         return result;
     }
 
-    /**
-     * 创建预测器
-     */
     private BasePredictor createPredictor(String method) {
-        switch (method.toUpperCase()) {
-            case "HOT": return new HotNumberPredictor(analysisService);
-            case "MISSING": return new MissingPredictor(analysisService);
-            case "BALANCED": return new BalancedPredictor(analysisService);
-            case "ML": return new MLPredictor(analysisService, lotteryService);
-            case "BAYESIAN": return new BayesianPredictor(analysisService, lotteryService);
-            case "MARKOV": return new MarkovPredictor(analysisService, lotteryService);
-            case "MONTECARLO": return new MonteCarloPredictor(analysisService, lotteryService);
-            case "ENSEMBLE": return new EnsemblePredictor(analysisService, lotteryService);
-            default: return null;
-        }
+        return predictorRegistry.get(method.toUpperCase());
     }
 
     /**

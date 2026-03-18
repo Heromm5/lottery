@@ -2,11 +2,14 @@ package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+@Component
 public class BayesianPredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
@@ -15,8 +18,8 @@ public class BayesianPredictor extends BasePredictor {
     private static final double THEORETICAL_PRIOR_FRONT = 1.0 / 35;
     private static final double THEORETICAL_PRIOR_BACK = 1.0 / 12;
     
-    public BayesianPredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public BayesianPredictor(AnalysisFacade analysisFacade, LotteryService lotteryService) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
     }
 

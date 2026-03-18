@@ -58,6 +58,8 @@ replay_pid*
 ### Environment ###
 .env
 .env.local
+application-local.yml
+**/application-local.yml
 
 ### Python ###
 **/__pycache__/

@@ -2,8 +2,9 @@ package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ import java.util.*;
  * 2. MCMC（Metropolis-Hastings）：从复杂分布中采样
  * 3. 重要性采样：使用提议分布优化采样效率
  */
+@Component
 public class MonteCarloPredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
@@ -28,8 +30,8 @@ public class MonteCarloPredictor extends BasePredictor {
     // 历史数据量
     private static final int HISTORY_PERIODS = 300;
 
-    public MonteCarloPredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public MonteCarloPredictor(AnalysisFacade analysisFacade, LotteryService lotteryService) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
     }
 

@@ -5,9 +5,9 @@ spring:
   application:
     name: lottery-java
   datasource:
-    url: jdbc:mysql://192.168.202.101:3306/lottery?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: Atguigu.123
+    url: ${DB_URL:jdbc:mysql://192.168.202.101:3306/lottery?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Atguigu.123}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5

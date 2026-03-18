@@ -3,9 +3,9 @@ package com.hobart.lottery.controller.api;
 import com.hobart.lottery.common.result.Result;
 import com.hobart.lottery.dto.AccuracyStatsDTO;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
-import com.hobart.lottery.service.VerificationService;
+import com.hobart.lottery.service.VerificationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +24,8 @@ import java.util.Map;
 public class IndexApiController {
 
     private final LotteryService lotteryService;
-    private final AnalysisService analysisService;
-    private final VerificationService verificationService;
+    private final AnalysisFacade analysisFacade;
+    private final VerificationQueryService verificationQueryService;
 
     /**
      * 获取首页数据
@@ -47,7 +47,7 @@ public class IndexApiController {
         stats.put("methodCount", 5);
         // 准确率统计数量
         try {
-            List<AccuracyStatsDTO> accuracyStats = verificationService.getAllAccuracyStats();
+            List<AccuracyStatsDTO> accuracyStats = verificationQueryService.getAllAccuracyStats();
             stats.put("statsCount", accuracyStats.size());
         } catch (Exception e) {
             stats.put("statsCount", 0);
@@ -55,7 +55,7 @@ public class IndexApiController {
         data.put("stats", stats);
 
         // 奇偶比统计
-        data.put("oddEvenStats", analysisService.getOddEvenStats());
+        data.put("oddEvenStats", analysisFacade.getOddEvenStats());
 
         return Result.success(data);
     }

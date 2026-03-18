@@ -1,7 +1,8 @@
 package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.domain.model.NumberZone;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -10,10 +11,11 @@ import java.util.*;
  * 前区：热号3个 + 温号1个 + 冷号1个
  * 后区：热号1个 + 冷号1个
  */
+@Component
 public class BalancedPredictor extends BasePredictor {
 
-    public BalancedPredictor(AnalysisService analysisService) {
-        super(analysisService);
+    public BalancedPredictor(AnalysisFacade analysisFacade) {
+        super(analysisFacade);
     }
 
     @Override
@@ -29,10 +31,10 @@ public class BalancedPredictor extends BasePredictor {
     @Override
     public int[][] predict() {
         // 获取热号和冷号
-        List<Integer> hotFront = analysisService.getHotFrontNumbers(12);
-        List<Integer> coldFront = analysisService.getColdFrontNumbers(12);
-        List<Integer> hotBack = analysisService.getHotBackNumbers(4);
-        List<Integer> coldBack = analysisService.getColdBackNumbers(4);
+        List<Integer> hotFront = analysisFacade.getHotFrontNumbers(12);
+        List<Integer> coldFront = analysisFacade.getColdFrontNumbers(12);
+        List<Integer> hotBack = analysisFacade.getHotBackNumbers(4);
+        List<Integer> coldBack = analysisFacade.getColdBackNumbers(4);
         
         // 温号 = 全部号码 - 热号 - 冷号
         Set<Integer> hotSet = new HashSet<>(hotFront);

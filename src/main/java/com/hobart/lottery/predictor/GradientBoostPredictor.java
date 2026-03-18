@@ -1,8 +1,9 @@
 package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -10,6 +11,7 @@ import java.util.*;
  * 梯度提升预测器
  * 使用加权特征评分进行预测（模拟梯度提升思想）
  */
+@Component
 public class GradientBoostPredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
@@ -17,8 +19,8 @@ public class GradientBoostPredictor extends BasePredictor {
     private static final int HISTORY_PERIODS = 300;
     private static final int MIN_PERIODS = 50;
 
-    public GradientBoostPredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public GradientBoostPredictor(AnalysisFacade analysisFacade, LotteryService lotteryService) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
     }
 

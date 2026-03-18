@@ -12,6 +12,9 @@ import com.hobart.lottery.service.PredictionScorer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +44,7 @@ public class PredictionApiController {
      */
     @PostMapping("/generate")
     public Result<List<PredictionResultDTO>> generate(
-            @RequestParam(defaultValue = "5") int count,
+            @RequestParam(defaultValue = "5") @Min(1) @Max(50) int count,
             @RequestParam(required = false) String method,
             @RequestParam(required = false) String targetIssue) {
         List<PredictionResultDTO> results = predictionService.generateAndSavePredictions(count, method, targetIssue);
@@ -80,8 +83,8 @@ public class PredictionApiController {
      */
     @GetMapping("/list")
     public Result<Map<String, Object>> getList(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "50") @Min(1) @Max(100) int size,
             @RequestParam(required = false, defaultValue = "all") String status) {
         String filterStatus = (status == null || status.isEmpty()) ? "all" : status;
         Page<PredictionRecord> pageParam = new Page<>(page, size);

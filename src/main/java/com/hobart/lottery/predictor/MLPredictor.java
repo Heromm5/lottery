@@ -2,8 +2,9 @@ package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -11,12 +12,13 @@ import java.util.*;
  * 机器学习预测器
  * 基于历史数据特征进行简单的模式识别预测
  */
+@Component
 public class MLPredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
 
-    public MLPredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public MLPredictor(AnalysisFacade analysisFacade, LotteryService lotteryService) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
     }
 

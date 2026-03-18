@@ -268,7 +268,7 @@ function clearAll() {
 onMounted(async () => {
   try {
     const next = await predictionApi.getNextIssue()
-    targetIssue.value = (next as string) ?? ''
+    targetIssue.value = next ?? ''
   } catch (_) {
     // 忽略，保留为空时后端会按开奖期号+1 处理
   }

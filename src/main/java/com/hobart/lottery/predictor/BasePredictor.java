@@ -1,6 +1,6 @@
 package com.hobart.lottery.predictor;
 
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import lombok.Getter;
 
 import java.util.*;
@@ -11,11 +11,11 @@ import java.util.*;
 @Getter
 public abstract class BasePredictor {
 
-    protected final AnalysisService analysisService;
+    protected final AnalysisFacade analysisFacade;
     protected final Random random = new Random();
 
-    public BasePredictor(AnalysisService analysisService) {
-        this.analysisService = analysisService;
+    public BasePredictor(AnalysisFacade analysisFacade) {
+        this.analysisFacade = analysisFacade;
     }
 
     /**

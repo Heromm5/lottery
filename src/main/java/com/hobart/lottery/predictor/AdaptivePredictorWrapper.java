@@ -1,6 +1,7 @@
 package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.service.learning.AdaptivePredictor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -8,12 +9,13 @@ import java.util.List;
  * 自适应预测器包装类
  * 将 AdaptivePredictor 包装为 BasePredictor 接口，统一预测入口
  */
+@Component
 public class AdaptivePredictorWrapper extends BasePredictor {
 
     private final AdaptivePredictor adaptivePredictor;
 
     public AdaptivePredictorWrapper(AdaptivePredictor adaptivePredictor) {
-        super(null); // 不需要 AnalysisService，AdaptivePredictor 内部已有
+        super(null); // 不需要 AnalysisFacade，AdaptivePredictor 内部已有
         this.adaptivePredictor = adaptivePredictor;
     }
 

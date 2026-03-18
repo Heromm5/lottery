@@ -2,10 +2,13 @@ package com.hobart.lottery.predictor;
 
 import com.hobart.lottery.domain.model.NumberZone;
 import com.hobart.lottery.entity.LotteryResult;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
+
+@Component
 public class MarkovPredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
@@ -21,8 +24,8 @@ public class MarkovPredictor extends BasePredictor {
     // 历史数据量
     private static final int HISTORY_PERIODS = 500;
 
-    public MarkovPredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public MarkovPredictor(AnalysisFacade analysisFacade, LotteryService lotteryService) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
     }
 

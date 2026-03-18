@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 数据分析服务（重构后）
+ * 数据分析服务（已废弃）
  * 
- * 委托给 AnalysisFacade，保持向后兼容
- * 新代码建议直接使用 AnalysisFacade 或各个专门的 Analyzer
+ * 委托给 AnalysisFacade，保持向后兼容。
+ * 新代码应直接使用 {@link AnalysisFacade} 或各个专门的 Analyzer。
+ * 
+ * @deprecated 使用 {@link AnalysisFacade} 代替
  */
+@Deprecated
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {

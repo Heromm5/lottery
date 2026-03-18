@@ -7,7 +7,7 @@ import com.hobart.lottery.dto.AccuracyStatsDTO;
 import com.hobart.lottery.dto.DigitFrequencyDTO;
 import com.hobart.lottery.dto.FrequencyDTO;
 import com.hobart.lottery.dto.MissingDTO;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.analysis.AssociationAnalyzer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalysisApiController {
 
-    private final AnalysisService analysisService;
+    private final AnalysisFacade analysisFacade;
     private final AssociationAnalyzer associationAnalyzer;
 
     /**
@@ -33,9 +33,9 @@ public class AnalysisApiController {
     @GetMapping("/frequency/front")
     public Result<List<FrequencyDTO>> getFrontFrequency(@RequestParam(required = false) Integer recentCount) {
         if (recentCount != null) {
-            return Result.success(analysisService.calculateFrontFrequency(recentCount));
+            return Result.success(analysisFacade.calculateFrontFrequency(recentCount));
         }
-        return Result.success(analysisService.calculateFrontFrequency());
+        return Result.success(analysisFacade.calculateFrontFrequency());
     }
 
     /**
@@ -44,9 +44,9 @@ public class AnalysisApiController {
     @GetMapping("/frequency/back")
     public Result<List<FrequencyDTO>> getBackFrequency(@RequestParam(required = false) Integer recentCount) {
         if (recentCount != null) {
-            return Result.success(analysisService.calculateBackFrequency(recentCount));
+            return Result.success(analysisFacade.calculateBackFrequency(recentCount));
         }
-        return Result.success(analysisService.calculateBackFrequency());
+        return Result.success(analysisFacade.calculateBackFrequency());
     }
 
     /**
@@ -54,7 +54,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/missing/front")
     public Result<List<MissingDTO>> getFrontMissing() {
-        return Result.success(analysisService.calculateFrontMissing());
+        return Result.success(analysisFacade.calculateFrontMissing());
     }
 
     /**
@@ -62,7 +62,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/missing/back")
     public Result<List<MissingDTO>> getBackMissing() {
-        return Result.success(analysisService.calculateBackMissing());
+        return Result.success(analysisFacade.calculateBackMissing());
     }
 
     /**
@@ -70,7 +70,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/trend")
     public Result<List<Map<String, Object>>> getTrend(@RequestParam(defaultValue = "30") int size) {
-        return Result.success(analysisService.getTrendData(size));
+        return Result.success(analysisFacade.getTrendData(size));
     }
 
     /**
@@ -78,7 +78,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/stats/odd-even")
     public Result<Map<String, Integer>> getOddEvenStats() {
-        return Result.success(analysisService.getOddEvenStats());
+        return Result.success(analysisFacade.getOddEvenStats());
     }
 
     /**
@@ -86,7 +86,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/stats/sum")
     public Result<Map<String, Integer>> getSumStats() {
-        return Result.success(analysisService.getFrontSumStats());
+        return Result.success(analysisFacade.getFrontSumStats());
     }
 
     /**
@@ -94,7 +94,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/stats/consecutive")
     public Result<Map<Integer, Integer>> getConsecutiveStats() {
-        return Result.success(analysisService.getConsecutiveStats());
+        return Result.success(analysisFacade.getConsecutiveStats());
     }
 
     /**
@@ -104,8 +104,8 @@ public class AnalysisApiController {
     public Result<Map<String, List<Integer>>> getHotNumbers(
             @RequestParam(defaultValue = "10") int count) {
         Map<String, List<Integer>> hot = new HashMap<>();
-        hot.put("front", analysisService.getHotFrontNumbers(count));
-        hot.put("back", analysisService.getHotBackNumbers(count));
+        hot.put("front", analysisFacade.getHotFrontNumbers(count));
+        hot.put("back", analysisFacade.getHotBackNumbers(count));
         return Result.success(hot);
     }
 
@@ -116,8 +116,8 @@ public class AnalysisApiController {
     public Result<Map<String, List<Integer>>> getColdNumbers(
             @RequestParam(defaultValue = "10") int count) {
         Map<String, List<Integer>> cold = new HashMap<>();
-        cold.put("front", analysisService.getColdFrontNumbers(count));
-        cold.put("back", analysisService.getColdBackNumbers(count));
+        cold.put("front", analysisFacade.getColdFrontNumbers(count));
+        cold.put("back", analysisFacade.getColdBackNumbers(count));
         return Result.success(cold);
     }
 
@@ -128,8 +128,8 @@ public class AnalysisApiController {
     public Result<Map<String, List<Integer>>> getMissingDue(
             @RequestParam(defaultValue = "10") int count) {
         Map<String, List<Integer>> missingDue = new HashMap<>();
-        missingDue.put("front", analysisService.getMissingDueFrontNumbers(count));
-        missingDue.put("back", analysisService.getMissingDueBackNumbers(count));
+        missingDue.put("front", analysisFacade.getMissingDueFrontNumbers(count));
+        missingDue.put("back", analysisFacade.getMissingDueBackNumbers(count));
         return Result.success(missingDue);
     }
 
@@ -162,9 +162,9 @@ public class AnalysisApiController {
             @RequestParam(defaultValue = "front") String zone) {
         NumberZone numberZone = "back".equalsIgnoreCase(zone) ? NumberZone.BACK : NumberZone.FRONT;
         if (numberZone == NumberZone.FRONT) {
-            return Result.success(analysisService.getFrontDigitFrequency());
+            return Result.success(analysisFacade.getFrontDigitFrequency());
         } else {
-            return Result.success(analysisService.getBackDigitFrequency());
+            return Result.success(analysisFacade.getBackDigitFrequency());
         }
     }
     
@@ -173,7 +173,7 @@ public class AnalysisApiController {
      */
     @GetMapping("/digit/sum")
     public Result<Map<String, Integer>> getDigitSumStats() {
-        return Result.success(analysisService.getDigitSumStats());
+        return Result.success(analysisFacade.getDigitSumStats());
     }
     
     /**
@@ -181,6 +181,6 @@ public class AnalysisApiController {
      */
     @GetMapping("/zone/distribution")
     public Result<Map<String, Map<String, Integer>>> getZoneDistribution() {
-        return Result.success(analysisService.getZoneDistribution());
+        return Result.success(analysisFacade.getZoneDistribution());
     }
 }

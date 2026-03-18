@@ -1,10 +1,11 @@
 package com.hobart.lottery.predictor;
 
-import com.hobart.lottery.domain.model.NumberZone;
-import com.hobart.lottery.service.AnalysisService;
+import com.hobart.lottery.service.analysis.AnalysisFacade;
 import com.hobart.lottery.service.LotteryService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 集成预测器
@@ -14,42 +15,26 @@ import java.util.*;
  * 1. 加权投票：根据各方法的历史准确率分配权重
  * 2. 概率融合：将各方法的概率预测加权平均
  */
+@Component
 public class EnsemblePredictor extends BasePredictor {
 
     private final LotteryService lotteryService;
     
     // 包含的预测器
-    private List<BasePredictor> predictors;
+    private final List<BasePredictor> predictors;
     
     // 各预测器的权重
     private double[] weights;
-    
-    // 默认权重
-    private static final double[] DEFAULT_WEIGHTS = {
-        0.15,  // 热号优先
-        0.15,  // 遗漏回补
-        0.15,  // 冷热均衡
-        0.20,  // 机器学习
-        0.10,  // 贝叶斯
-        0.125, // 马尔可夫
-        0.125  // 蒙特卡洛
-    };
 
-    public EnsemblePredictor(AnalysisService analysisService, LotteryService lotteryService) {
-        super(analysisService);
+    public EnsemblePredictor(AnalysisFacade analysisFacade, LotteryService lotteryService, List<BasePredictor> allPredictors) {
+        super(analysisFacade);
         this.lotteryService = lotteryService;
         
-        // 初始化预测器列表
-        this.predictors = new ArrayList<>();
-        this.predictors.add(new HotNumberPredictor(analysisService));
-        this.predictors.add(new MissingPredictor(analysisService));
-        this.predictors.add(new BalancedPredictor(analysisService));
-        this.predictors.add(new MLPredictor(analysisService, lotteryService));
-        this.predictors.add(new BayesianPredictor(analysisService, lotteryService));
-        this.predictors.add(new MarkovPredictor(analysisService, lotteryService));
-        this.predictors.add(new MonteCarloPredictor(analysisService, lotteryService));
+        this.predictors = allPredictors.stream()
+            .filter(p -> !(p instanceof EnsemblePredictor))
+            .collect(Collectors.toList());
         
-        this.weights = DEFAULT_WEIGHTS.clone();
+        this.weights = initDefaultWeights(this.predictors.size());
     }
 
     @Override
@@ -162,28 +147,32 @@ public class EnsemblePredictor extends BasePredictor {
         return result;
     }
 
+    private static double[] initDefaultWeights(int size) {
+        double[] w = new double[size];
+        Arrays.fill(w, 1.0 / size);
+        return w;
+    }
+
     /**
      * 根据历史准确率调整权重
      */
     public void adjustWeightsByAccuracy(Map<String, Double> accuracies) {
-        String[] methodCodes = {"HOT", "MISSING", "BALANCED", "ML", "BAYESIAN", "MARKOV", "MONTECARLO"};
-        
         double totalAccuracy = 0;
-        double[] newWeights = new double[weights.length];
+        double[] newWeights = new double[predictors.size()];
         
-        for (int i = 0; i < methodCodes.length; i++) {
-            double accuracy = accuracies.getOrDefault(methodCodes[i], 0.0);
-            newWeights[i] = accuracy * DEFAULT_WEIGHTS[i];
+        for (int i = 0; i < predictors.size(); i++) {
+            String code = predictors.get(i).getMethodCode();
+            double accuracy = accuracies.getOrDefault(code, 0.0);
+            newWeights[i] = accuracy * weights[i];
             totalAccuracy += newWeights[i];
         }
         
-        // 归一化
         if (totalAccuracy > 0) {
-            for (int i = 0; i < weights.length; i++) {
+            for (int i = 0; i < newWeights.length; i++) {
                 weights[i] = newWeights[i] / totalAccuracy;
             }
         } else {
-            weights = DEFAULT_WEIGHTS.clone();
+            weights = initDefaultWeights(predictors.size());
         }
     }
 
@@ -192,10 +181,9 @@ public class EnsemblePredictor extends BasePredictor {
      */
     public Map<String, Double> getCurrentWeights() {
         Map<String, Double> weightMap = new HashMap<>();
-        String[] names = {"热号优先", "遗漏回补", "冷热均衡", "机器学习", "贝叶斯", "马尔可夫", "蒙特卡洛"};
         
-        for (int i = 0; i < names.length; i++) {
-            weightMap.put(names[i], weights[i]);
+        for (int i = 0; i < predictors.size(); i++) {
+            weightMap.put(predictors.get(i).getMethodName(), weights[i]);
         }
         
         return weightMap;
@@ -221,13 +209,12 @@ public class EnsemblePredictor extends BasePredictor {
         Map<String, Object> comparison = new HashMap<>();
         
         List<int[][]> predictions = getAllPredictions();
-        String[] names = {"热号优先", "遗漏回补", "冷热均衡", "机器学习", "贝叶斯", "马尔可夫", "蒙特卡洛"};
         
-        for (int i = 0; i < names.length; i++) {
+        for (int i = 0; i < predictors.size(); i++) {
             Map<String, Object> pred = new HashMap<>();
             pred.put("front", Arrays.toString(predictions.get(i)[0]));
             pred.put("back", Arrays.toString(predictions.get(i)[1]));
-            comparison.put(names[i], pred);
+            comparison.put(predictors.get(i).getMethodName(), pred);
         }
         
         // 集成预测

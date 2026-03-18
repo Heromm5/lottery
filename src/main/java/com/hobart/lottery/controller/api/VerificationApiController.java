@@ -8,20 +8,21 @@ import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.dto.VerificationHistoryDTO;
 import com.hobart.lottery.service.BacktestService;
 import com.hobart.lottery.service.VerificationService;
+import com.hobart.lottery.service.VerificationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * 验证 API 控制器
- */
 @RestController
 @RequestMapping("/api/verification")
 @RequiredArgsConstructor
 public class VerificationApiController {
 
     private final VerificationService verificationService;
+    private final VerificationQueryService verificationQueryService;
     private final BacktestService backtestService;
 
     /**
@@ -29,7 +30,7 @@ public class VerificationApiController {
      */
     @GetMapping("/stats")
     public Result<List<AccuracyStatsDTO>> getAccuracyStats() {
-        return Result.success(verificationService.getAllAccuracyStats());
+        return Result.success(verificationQueryService.getAllAccuracyStats());
     }
 
     /**
@@ -41,7 +42,7 @@ public class VerificationApiController {
     public Result<List<AccuracyStatsDTO>> getAccuracyRanking(
             @RequestParam(defaultValue = "composite") String sortBy,
             @RequestParam(defaultValue = "false") boolean ascending) {
-        return Result.success(verificationService.getAllAccuracyStats(sortBy, ascending));
+        return Result.success(verificationQueryService.getAllAccuracyStats(sortBy, ascending));
     }
 
     /**
@@ -68,10 +69,10 @@ public class VerificationApiController {
      */
     @GetMapping("/history")
     public Result<PageResult<VerificationHistoryDTO>> getHistory(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        List<VerificationHistoryDTO> records = verificationService.getVerificationHistory(page, size);
-        int total = verificationService.countVerificationHistory();
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        List<VerificationHistoryDTO> records = verificationQueryService.getVerificationHistory(page, size);
+        int total = verificationQueryService.countVerificationHistory();
         PageResult<VerificationHistoryDTO> result = new PageResult<>(records, total, size, page);
         return Result.success(result);
     }
@@ -81,7 +82,7 @@ public class VerificationApiController {
      */
     @GetMapping("/unverified/issues")
     public Result<List<String>> getUnverifiedIssues() {
-        return Result.success(verificationService.getUnverifiedIssues());
+        return Result.success(verificationQueryService.getUnverifiedIssues());
     }
 
     /**
@@ -102,6 +103,6 @@ public class VerificationApiController {
      */
     @GetMapping("/check/{issue}")
     public Result<Boolean> checkDrawResult(@PathVariable String issue) {
-        return Result.success(verificationService.hasDrawResult(issue));
+        return Result.success(verificationQueryService.hasDrawResult(issue));
     }
 }

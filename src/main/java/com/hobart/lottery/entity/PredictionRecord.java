@@ -3,6 +3,7 @@ package com.hobart.lottery.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -83,6 +84,7 @@ public class PredictionRecord {
     /**
      * 获取前区号码数组（空安全：若单独字段未填则从 frontBalls 字符串解析）
      */
+    @JsonIgnore
     public int[] getFrontBallArray() {
         if (frontBall1 != null && frontBall2 != null && frontBall3 != null && frontBall4 != null && frontBall5 != null) {
             return new int[]{frontBall1, frontBall2, frontBall3, frontBall4, frontBall5};
@@ -105,6 +107,7 @@ public class PredictionRecord {
     /**
      * 获取后区号码数组（空安全：若单独字段未填则从 backBalls 字符串解析）
      */
+    @JsonIgnore
     public int[] getBackBallArray() {
         if (backBall1 != null && backBall2 != null) {
             return new int[]{backBall1, backBall2};
