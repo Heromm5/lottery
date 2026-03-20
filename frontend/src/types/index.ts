@@ -35,6 +35,11 @@ export interface LotteryResult {
 export interface PredictionRecord {
   id: number
   targetIssue: string
+  predictMethod?: string
+  /** RANDOM / PINNED */
+  generationMode?: string
+  lockedFrontBalls?: string | null
+  lockedBackBalls?: string | null
   methodName: string
   frontBalls: number[] | string
   backBalls: number[] | string
@@ -47,10 +52,23 @@ export interface PredictionRecord {
   verifiedAt?: string
 }
 
+/** POST /prediction/generate-pinned */
+export interface GeneratePinnedRequest {
+  count: number
+  method: string
+  targetIssue?: string
+  lockedFront?: number[]
+  lockedBack?: number[]
+}
+
 export interface PredictionResult {
   id?: number
   targetIssue?: string
   predictMethod?: string
+  /** RANDOM / PINNED */
+  generationMode?: string
+  lockedFrontBalls?: string | null
+  lockedBackBalls?: string | null
   methodName: string
   frontBalls: number[]
   backBalls: number[]

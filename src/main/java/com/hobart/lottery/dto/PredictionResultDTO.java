@@ -77,6 +77,21 @@ public class PredictionResultDTO {
      */
     private Double score;
 
+    /**
+     * 生成方式：RANDOM / PINNED（与 prediction_records.generation_mode 一致）
+     */
+    private String generationMode;
+
+    /**
+     * 定胆前区（逗号分隔），非定胆时可为 null
+     */
+    private String lockedFrontBalls;
+
+    /**
+     * 定胆后区（逗号分隔），非定胆时可为 null
+     */
+    private String lockedBackBalls;
+
     public static String getMethodDisplayName(String method) {
         switch (method) {
             case "HOT": return "热号优先";

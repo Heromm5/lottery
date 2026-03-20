@@ -37,6 +37,9 @@ CREATE TABLE `prediction_records` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     `target_issue` VARCHAR(20) NOT NULL COMMENT '预测目标期号',
     `predict_method` VARCHAR(50) NOT NULL COMMENT '预测方法代码',
+    `generation_mode` VARCHAR(20) NOT NULL DEFAULT 'RANDOM' COMMENT '生成方式:RANDOM/PINNED',
+    `locked_front_balls` VARCHAR(50) NULL COMMENT '定胆前区(逗号分隔)',
+    `locked_back_balls` VARCHAR(20) NULL COMMENT '定胆后区(逗号分隔)',
     `front_balls` VARCHAR(50) NOT NULL COMMENT '预测前区号码(逗号分隔)',
     `back_balls` VARCHAR(20) NOT NULL COMMENT '预测后区号码(逗号分隔)',
     `front_ball1` INT NULL COMMENT '前区第1个号码(1-35)',
@@ -56,7 +59,8 @@ CREATE TABLE `prediction_records` (
     INDEX `idx_target_issue` (`target_issue`) COMMENT '目标期号索引',
     INDEX `idx_pr_issue_verified` (`target_issue`, `is_verified`) COMMENT '期号+验证状态复合索引',
     INDEX `idx_pr_issue_final` (`target_issue`, `is_final` DESC) COMMENT '期号+最终预测复合索引',
-    INDEX `idx_pr_method_verified` (`predict_method`, `is_verified`) COMMENT '方法+验证状态复合索引'
+    INDEX `idx_pr_method_verified` (`predict_method`, `is_verified`) COMMENT '方法+验证状态复合索引',
+    INDEX `idx_pr_issue_mode` (`target_issue`, `generation_mode`) COMMENT '期号+生成方式(定胆筛选)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='预测记录表';
 
 -- 预测准确率统计表

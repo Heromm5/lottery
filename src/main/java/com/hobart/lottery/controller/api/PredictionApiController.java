@@ -3,15 +3,17 @@ package com.hobart.lottery.controller.api;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hobart.lottery.common.result.Result;
-import com.hobart.lottery.domain.model.PredictionMethod;
+import com.hobart.lottery.dto.GeneratePinnedRequest;
 import com.hobart.lottery.dto.PredictionRecordListDTO;
 import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.entity.PredictionRecord;
 import com.hobart.lottery.service.PredictionService;
 import com.hobart.lottery.service.PredictionScorer;
+import com.hobart.lottery.service.prediction.PredictionDisplayNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
@@ -63,6 +65,15 @@ public class PredictionApiController {
     }
 
     /**
+     * 定胆生成预测并保存（胆码必出现在每注中）
+     */
+    @PostMapping("/generate-pinned")
+    public Result<List<PredictionResultDTO>> generatePinned(@Valid @RequestBody GeneratePinnedRequest body) {
+        List<PredictionResultDTO> results = predictionService.generateAndSavePinnedPredictions(body);
+        return Result.success(results);
+    }
+
+    /**
      * 获取某期预测记录
      */
     @GetMapping("/issue/{issue}")
@@ -109,7 +120,10 @@ public class PredictionApiController {
         dto.setId(r.getId());
         dto.setTargetIssue(r.getTargetIssue());
         dto.setPredictMethod(r.getPredictMethod());
-        dto.setMethodName(PredictionMethod.getDisplayName(r.getPredictMethod()));
+        dto.setGenerationMode(r.getGenerationMode());
+        dto.setLockedFrontBalls(r.getLockedFrontBalls());
+        dto.setLockedBackBalls(r.getLockedBackBalls());
+        dto.setMethodName(PredictionDisplayNames.forMethodAndMode(r.getPredictMethod(), r.getGenerationMode()));
         dto.setFrontBalls(r.getFrontBalls());
         dto.setBackBalls(r.getBackBalls());
         dto.setIsVerified(r.getIsVerified());

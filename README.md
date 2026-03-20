@@ -28,6 +28,13 @@ CREATE DATABASE lottery DEFAULT CHARACTER SET utf8mb4;
 
 执行 `src/main/resources/db/schema.sql` 创建表结构。
 
+**从旧版库升级**：若 `prediction_records` 尚无定胆相关列，可执行 [`sql/migration_prediction_records_generation_mode.sql`](sql/migration_prediction_records_generation_mode.sql)（与 `schema.sql` 中定义一致）。已手动执行过相同 `ALTER` 的环境无需重复执行。
+
+定胆落库字段说明：
+
+- `generation_mode`：`RANDOM`（默认，算法随机生成） / `PINNED`（定胆生成）
+- `locked_front_balls` / `locked_back_balls`：当次胆码，逗号分隔；非定胆为 `NULL`
+
 ### 2. 配置数据库连接
 
 复制 `src/main/resources/application-local.yml`，填写实际数据库地址和密码，然后以 `local` profile 启动：
@@ -104,6 +111,12 @@ lottery-java/
 ├── docker-compose.yml
 └── pom.xml
 ```
+
+## 定胆预测
+
+- 前端「智能预测」页含 **算法随机** / **定胆生成** 两个 Tab；胆码模式下每注 **必含** 所选前区/后区号码，其余由对应算法补全。
+- 接口：`POST /api/prediction/generate-pinned`，JSON 体字段：`count`（1–50）、`method`（算法代码）、`targetIssue`（可选）、`lockedFront` / `lockedBack`（可选，整数数组）。
+- 落库：`generation_mode=PINNED`，`locked_front_balls`、`locked_back_balls` 存当次胆码（逗号分隔）。
 
 ## 预测算法
 

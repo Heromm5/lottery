@@ -6,6 +6,7 @@ import com.hobart.lottery.dto.AccuracyStatsDTO;
 import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.dto.VerificationHistoryDTO;
 import com.hobart.lottery.domain.model.PredictionMethod;
+import com.hobart.lottery.service.prediction.PredictionDisplayNames;
 import com.hobart.lottery.entity.LotteryResult;
 import com.hobart.lottery.entity.PredictionAccuracy;
 import com.hobart.lottery.entity.PredictionRecord;
@@ -131,7 +132,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
             dto.setId(record.getId());
             dto.setTargetIssue(record.getTargetIssue());
             dto.setPredictMethod(record.getPredictMethod());
-            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
+            dto.setMethodName(PredictionDisplayNames.forMethodAndMode(record.getPredictMethod(), record.getGenerationMode()));
             dto.setFrontBalls(predictFront);
             dto.setBackBalls(predictBack);
             dto.setFrontBallsStr(record.getFrontBalls());
@@ -140,6 +141,9 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
             dto.setFrontHitCount(frontHit);
             dto.setBackHitCount(backHit);
             dto.setPrizeLevel(prizeLevel);
+            dto.setGenerationMode(record.getGenerationMode());
+            dto.setLockedFrontBalls(record.getLockedFrontBalls());
+            dto.setLockedBackBalls(record.getLockedBackBalls());
 
             verifiedResults.add(dto);
         }
@@ -395,7 +399,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
             dto.setId(record.getId());
             dto.setTargetIssue(record.getTargetIssue());
             dto.setPredictMethod(record.getPredictMethod());
-            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
+            dto.setMethodName(PredictionDisplayNames.forMethodAndMode(record.getPredictMethod(), record.getGenerationMode()));
             dto.setFrontBallsStr(record.getFrontBalls());
             dto.setBackBallsStr(record.getBackBalls());
             dto.setFrontHitCount(record.getFrontHitCount());
@@ -440,7 +444,7 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
         dto.setId(record.getId());
         dto.setTargetIssue(record.getTargetIssue());
         dto.setPredictMethod(record.getPredictMethod());
-        dto.setMethodName(PredictionResultDTO.getMethodDisplayName(record.getPredictMethod()));
+        dto.setMethodName(PredictionDisplayNames.forMethodAndMode(record.getPredictMethod(), record.getGenerationMode()));
         dto.setFrontBalls(record.getFrontBallArray());
         dto.setBackBalls(record.getBackBallArray());
         dto.setFrontBallsStr(record.getFrontBalls());
@@ -449,6 +453,9 @@ public class VerificationService extends ServiceImpl<PredictionAccuracyMapper, P
         dto.setFrontHitCount(record.getFrontHitCount());
         dto.setBackHitCount(record.getBackHitCount());
         dto.setPrizeLevel(record.getPrizeLevel());
+        dto.setGenerationMode(record.getGenerationMode());
+        dto.setLockedFrontBalls(record.getLockedFrontBalls());
+        dto.setLockedBackBalls(record.getLockedBackBalls());
         return dto;
     }
 }

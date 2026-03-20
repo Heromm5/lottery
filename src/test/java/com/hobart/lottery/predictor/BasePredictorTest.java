@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,7 +71,7 @@ class BasePredictorTest {
     @Test
     @DisplayName("批量生成应返回指定数量且不重复")
     void predictMultipleShouldReturnDistinctResults() {
-        var results = predictor.predictMultiple(5);
+        List<int[][]> results = predictor.predictMultiple(5);
         assertEquals(5, results.size());
 
         Set<String> keys = new HashSet<>();

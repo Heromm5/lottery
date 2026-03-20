@@ -14,6 +14,10 @@ public class PredictionRecordListDTO {
     private Long id;
     private String targetIssue;
     private String predictMethod;
+    /** RANDOM / PINNED */
+    private String generationMode;
+    private String lockedFrontBalls;
+    private String lockedBackBalls;
     private String methodName;
     private String frontBalls;
     private String backBalls;

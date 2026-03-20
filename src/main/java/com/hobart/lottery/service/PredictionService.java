@@ -8,8 +8,12 @@ import com.hobart.lottery.domain.model.PredictionMethod;
 import com.hobart.lottery.dto.PredictionResultDTO;
 import com.hobart.lottery.entity.PredictionRecord;
 import com.hobart.lottery.mapper.PredictionRecordMapper;
+import com.hobart.lottery.common.exception.BusinessException;
+import com.hobart.lottery.dto.GeneratePinnedRequest;
 import com.hobart.lottery.predictor.BasePredictor;
 import com.hobart.lottery.predictor.PredictorRegistry;
+import com.hobart.lottery.service.prediction.PinnedBallMerger;
+import com.hobart.lottery.service.prediction.PredictionDisplayNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +94,79 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
         return results;
     }
 
+    /**
+     * 定胆生成：在算法输出上合并胆码并落库（generation_mode=PINNED）。
+     */
+    @Transactional
+    public List<PredictionResultDTO> generateAndSavePinnedPredictions(GeneratePinnedRequest request) {
+        List<Integer> lockedFront = request.getLockedFront() != null ? request.getLockedFront() : Collections.emptyList();
+        List<Integer> lockedBack = request.getLockedBack() != null ? request.getLockedBack() : Collections.emptyList();
+        PinnedBallMerger.validate(lockedFront, lockedBack);
+
+        String targetIssue = request.getTargetIssue();
+        if (targetIssue == null || targetIssue.isEmpty()) {
+            targetIssue = lotteryService.generateNextIssue();
+        }
+
+        String method = request.getMethod().trim().toUpperCase();
+        BasePredictor predictor = predictorRegistry.get(method);
+        if (predictor == null) {
+            throw new BusinessException("无效的预测方法: " + method);
+        }
+
+        int count = request.getCount();
+        Set<Integer> frontPins = PinnedBallMerger.toPinSet(lockedFront);
+        Set<Integer> backPins = PinnedBallMerger.toPinSet(lockedBack);
+        String lockedFrontCsv = PinnedBallMerger.toLockedCsv(lockedFront);
+        String lockedBackCsv = PinnedBallMerger.toLockedCsv(lockedBack);
+
+        Set<String> seenKeys = new HashSet<>();
+        List<PredictionResultDTO> results = new ArrayList<>();
+        Random random = new Random();
+        int maxAttempts = Math.max(count * 80, 80);
+        int attempts = 0;
+
+        while (results.size() < count && attempts < maxAttempts) {
+            int[][] raw = predictor.predict();
+            int[][] merged = PinnedBallMerger.merge(raw[0], raw[1], frontPins, backPins, random);
+            String key = Arrays.toString(merged[0]) + "|" + Arrays.toString(merged[1]);
+            if (seenKeys.contains(key)) {
+                attempts++;
+                continue;
+            }
+            seenKeys.add(key);
+
+            PredictionRecord record = new PredictionRecord();
+            record.setTargetIssue(targetIssue);
+            record.setPredictMethod(method);
+            record.setGenerationMode(PredictionRecord.GENERATION_MODE_PINNED);
+            record.setLockedFrontBalls(lockedFrontCsv);
+            record.setLockedBackBalls(lockedBackCsv);
+            record.setFrontBallArray(merged[0]);
+            record.setBackBallArray(merged[1]);
+            record.setIsVerified(0);
+            save(record);
+
+            PredictionResultDTO dto = new PredictionResultDTO();
+            dto.setId(record.getId());
+            dto.setTargetIssue(targetIssue);
+            dto.setPredictMethod(method);
+            dto.setMethodName(PredictionDisplayNames.forMethodAndMode(method, PredictionRecord.GENERATION_MODE_PINNED));
+            dto.setFrontBalls(merged[0]);
+            dto.setBackBalls(merged[1]);
+            dto.setFrontBallsStr(record.getFrontBalls());
+            dto.setBackBallsStr(record.getBackBalls());
+            dto.setVerified(false);
+            dto.setGenerationMode(record.getGenerationMode());
+            dto.setLockedFrontBalls(record.getLockedFrontBalls());
+            dto.setLockedBackBalls(record.getLockedBackBalls());
+            results.add(dto);
+            attempts++;
+        }
+
+        return results;
+    }
+
     private PredictionResultDTO generateBestByMethod(int candidateCount, String method, String targetIssue) {
         BasePredictor predictor = predictorRegistry.get(method);
         if (predictor == null) {
@@ -107,6 +184,9 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
         PredictionRecord record = new PredictionRecord();
         record.setTargetIssue(targetIssue);
         record.setPredictMethod(method);
+        record.setGenerationMode(PredictionRecord.GENERATION_MODE_RANDOM);
+        record.setLockedFrontBalls(null);
+        record.setLockedBackBalls(null);
         record.setFrontBallArray(bestPrediction[0]);
         record.setBackBallArray(bestPrediction[1]);
         record.setIsVerified(0);
@@ -117,12 +197,15 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
         dto.setId(record.getId());
         dto.setTargetIssue(targetIssue);
         dto.setPredictMethod(method);
-        dto.setMethodName(PredictionResultDTO.getMethodDisplayName(method));
+        dto.setMethodName(PredictionDisplayNames.forMethodAndMode(method, PredictionRecord.GENERATION_MODE_RANDOM));
         dto.setFrontBalls(bestPrediction[0]);
         dto.setBackBalls(bestPrediction[1]);
         dto.setFrontBallsStr(record.getFrontBalls());
         dto.setBackBallsStr(record.getBackBalls());
         dto.setVerified(false);
+        dto.setGenerationMode(record.getGenerationMode());
+        dto.setLockedFrontBalls(record.getLockedFrontBalls());
+        dto.setLockedBackBalls(record.getLockedBackBalls());
         
         return dto;
     }
@@ -140,6 +223,9 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             PredictionRecord record = new PredictionRecord();
             record.setTargetIssue(targetIssue);
             record.setPredictMethod(method);
+            record.setGenerationMode(PredictionRecord.GENERATION_MODE_RANDOM);
+            record.setLockedFrontBalls(null);
+            record.setLockedBackBalls(null);
             record.setFrontBallArray(prediction[0]);
             record.setBackBallArray(prediction[1]);
             record.setIsVerified(0);
@@ -150,12 +236,15 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             dto.setId(record.getId());
             dto.setTargetIssue(targetIssue);
             dto.setPredictMethod(method);
-            dto.setMethodName(PredictionMethod.getDisplayName(method));
+            dto.setMethodName(PredictionDisplayNames.forMethodAndMode(method, PredictionRecord.GENERATION_MODE_RANDOM));
             dto.setFrontBalls(prediction[0]);
             dto.setBackBalls(prediction[1]);
             dto.setFrontBallsStr(record.getFrontBalls());
             dto.setBackBallsStr(record.getBackBalls());
             dto.setVerified(false);
+            dto.setGenerationMode(record.getGenerationMode());
+            dto.setLockedFrontBalls(record.getLockedFrontBalls());
+            dto.setLockedBackBalls(record.getLockedBackBalls());
             
             results.add(dto);
         }
@@ -233,7 +322,7 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             dto.setId(record.getId());
             dto.setTargetIssue(record.getTargetIssue());
             dto.setPredictMethod(record.getPredictMethod());
-            dto.setMethodName(PredictionMethod.getDisplayName(record.getPredictMethod()));
+            dto.setMethodName(PredictionDisplayNames.forMethodAndMode(record.getPredictMethod(), record.getGenerationMode()));
             dto.setFrontBalls(record.getFrontBallArray());
             dto.setBackBalls(record.getBackBallArray());
             dto.setFrontBallsStr(record.getFrontBalls());
@@ -242,6 +331,9 @@ public class PredictionService extends ServiceImpl<PredictionRecordMapper, Predi
             dto.setFrontHitCount(record.getFrontHitCount());
             dto.setBackHitCount(record.getBackHitCount());
             dto.setPrizeLevel(record.getPrizeLevel());
+            dto.setGenerationMode(record.getGenerationMode());
+            dto.setLockedFrontBalls(record.getLockedFrontBalls());
+            dto.setLockedBackBalls(record.getLockedBackBalls());
             dtos.add(dto);
         }
         return dtos;

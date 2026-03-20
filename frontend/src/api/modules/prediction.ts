@@ -1,5 +1,5 @@
 import { request } from '../axios'
-import type { PredictionRecord, PredictionResult, PageResult } from '@/types'
+import type { GeneratePinnedRequest, PredictionRecord, PredictionResult, PageResult } from '@/types'
 
 export const predictionApi = {
   getMethods: () =>
@@ -9,6 +9,9 @@ export const predictionApi = {
     request.post<PredictionResult[]>('/prediction/generate', null, {
       params: { count, method, targetIssue }
     }),
+
+  generatePinned: (body: GeneratePinnedRequest) =>
+    request.post<PredictionResult[]>('/prediction/generate-pinned', body),
 
   generateBest: (candidateCount = 10, targetIssue?: string) =>
     request.post<PredictionResult[]>('/prediction/generate/best', null, {

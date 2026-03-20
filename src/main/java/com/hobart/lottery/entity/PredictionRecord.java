@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
 @TableName("prediction_records")
 public class PredictionRecord {
 
+    /** 与表 generation_mode 取值一致 */
+    public static final String GENERATION_MODE_RANDOM = "RANDOM";
+    public static final String GENERATION_MODE_PINNED = "PINNED";
+
     @TableId(type = IdType.AUTO)
     private Long id;
 
@@ -27,6 +31,21 @@ public class PredictionRecord {
      * 预测方法
      */
     private String predictMethod;
+
+    /**
+     * 生成方式：RANDOM 算法随机生成；PINNED 定胆生成
+     */
+    private String generationMode;
+
+    /**
+     * 定胆前区号码（逗号分隔），非定胆时为 null
+     */
+    private String lockedFrontBalls;
+
+    /**
+     * 定胆后区号码（逗号分隔），非定胆时为 null
+     */
+    private String lockedBackBalls;
 
     /**
      * 预测前区号码字符串
