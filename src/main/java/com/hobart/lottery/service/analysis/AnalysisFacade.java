@@ -8,8 +8,10 @@ import com.hobart.lottery.dto.SameNumberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 分析服务门面
@@ -166,5 +168,100 @@ public class AnalysisFacade {
      */
     public Map<String, Map<String, Integer>> getZoneDistribution() {
         return statisticsAnalyzer.getZoneDistribution();
+    }
+    
+    // ==================== 综合分析（供 AI 使用） ====================
+    
+    /**
+     * 获取综合分析数据 - 供 AI 规则发现使用
+     * 
+     * @param periods 历史期数
+     * @return 综合分析数据字符串
+     */
+    public String getComprehensiveAnalysis(int periods) {
+        StringBuilder sb = new StringBuilder();
+        
+        // 频率分析
+        sb.append("=== 号码频率分析 (最近").append(periods).append("期) ===\n");
+        List<FrequencyDTO> frontFreq = calculateFrontFrequency(periods);
+        List<FrequencyDTO> backFreq = calculateBackFrequency(periods);
+        
+        // 前区频率 Top10
+        sb.append("前区频率 Top10: [");
+        for (int i = 0; i < Math.min(10, frontFreq.size()); i++) {
+            FrequencyDTO f = frontFreq.get(i);
+            if (i > 0) sb.append(", ");
+            sb.append(f.getNumber()).append(":").append(f.getCount());
+        }
+        sb.append("]\n");
+        
+        // 后区频率 Top10
+        sb.append("后区频率 Top10: [");
+        for (int i = 0; i < Math.min(10, backFreq.size()); i++) {
+            FrequencyDTO f = backFreq.get(i);
+            if (i > 0) sb.append(", ");
+            sb.append(f.getNumber()).append(":").append(f.getCount());
+        }
+        sb.append("]\n");
+        
+        // 热号冷号
+        sb.append("\n=== 热号冷号 ===\n");
+        sb.append("前区热号: ").append(getHotFrontNumbers(10)).append("\n");
+        sb.append("前区冷号: ").append(getColdFrontNumbers(10)).append("\n");
+        sb.append("后区热号: ").append(getHotBackNumbers(6)).append("\n");
+        sb.append("后区冷号: ").append(getColdBackNumbers(6)).append("\n");
+        
+        // 遗漏分析
+        sb.append("\n=== 遗漏分析 ===\n");
+        List<MissingDTO> frontMissing = calculateFrontMissing();
+        List<MissingDTO> backMissing = calculateBackMissing();
+        
+        // 前区遗漏 Top10 - 排序
+        List<MissingDTO> sortedFrontMissing = frontMissing.stream()
+            .sorted(Comparator.comparing(MissingDTO::getCurrentMissing).reversed())
+            .limit(10)
+            .collect(Collectors.toList());
+        sb.append("前区遗漏 Top10: [");
+        for (int i = 0; i < sortedFrontMissing.size(); i++) {
+            MissingDTO m = sortedFrontMissing.get(i);
+            if (i > 0) sb.append(", ");
+            sb.append(m.getNumber()).append(":").append(m.getCurrentMissing());
+        }
+        sb.append("]\n");
+        
+        // 后区遗漏 Top10 - 排序
+        List<MissingDTO> sortedBackMissing = backMissing.stream()
+            .sorted(Comparator.comparing(MissingDTO::getCurrentMissing).reversed())
+            .limit(10)
+            .collect(Collectors.toList());
+        sb.append("后区遗漏 Top10: [");
+        for (int i = 0; i < sortedBackMissing.size(); i++) {
+            MissingDTO m = sortedBackMissing.get(i);
+            if (i > 0) sb.append(", ");
+            sb.append(m.getNumber()).append(":").append(m.getCurrentMissing());
+        }
+        sb.append("]\n");
+        
+        // 遗漏到期号码
+        sb.append("前区遗漏到期: ").append(getMissingDueFrontNumbers(10)).append("\n");
+        sb.append("后区遗漏到期: ").append(getMissingDueBackNumbers(6)).append("\n");
+        
+        // 统计特征
+        sb.append("\n=== 统计特征 ===\n");
+        sb.append("奇偶比: ").append(getOddEvenStats()).append("\n");
+        sb.append("和值区间: ").append(getFrontSumStats()).append("\n");
+        sb.append("连号统计: ").append(getConsecutiveStats()).append("\n");
+        
+        // 尾数分析
+        sb.append("\n=== 尾数分析 ===\n");
+        sb.append("前区尾数频率: ").append(getFrontDigitFrequency()).append("\n");
+        sb.append("后区尾数频率: ").append(getBackDigitFrequency()).append("\n");
+        sb.append("尾数和值: ").append(getDigitSumStats()).append("\n");
+        
+        // 区间分布
+        sb.append("\n=== 区间分布 ===\n");
+        sb.append("区间分布: ").append(getZoneDistribution()).append("\n");
+        
+        return sb.toString();
     }
 }
