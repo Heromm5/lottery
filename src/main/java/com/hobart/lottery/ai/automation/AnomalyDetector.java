@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -238,5 +239,39 @@ public class AnomalyDetector {
         }
 
         return alerts;
+    }
+
+    /**
+     * 定时异常检测任务
+     * 每天早8点和晚8点自动执行
+     */
+    @Scheduled(cron = "0 0 8,20 * * ?")
+    public void scheduledAnomalyDetection() {
+        log.info("开始执行定时异常检测任务...");
+        try {
+            List<AnomalyAlert> alerts = detectAnomalies(30);
+            if (!alerts.isEmpty()) {
+                log.warn("检测到 {} 个异常告警", alerts.size());
+                for (AnomalyAlert alert : alerts) {
+                    log.warn("告警类型: {}, 严重程度: {}, 描述: {}", 
+                        alert.getType(), alert.getSeverity(), alert.getDescription());
+                }
+                // 通知系统（邮件/消息等）可在此扩展
+                notifyUser(alerts);
+            } else {
+                log.info("未检测到异常");
+            }
+        } catch (Exception e) {
+            log.error("定时异常检测任务执行失败", e);
+        }
+    }
+
+    /**
+     * 发送告警通知
+     * 预留扩展接口，可接入邮件、短信、WebSocket等通知方式
+     */
+    private void notifyUser(List<AnomalyAlert> alerts) {
+        // TODO: 实现通知逻辑
+        log.info("需要发送通知的告警数量: {}", alerts.size());
     }
 }
