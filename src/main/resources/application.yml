@@ -54,3 +54,5 @@ lottery:
     front-hit-threshold: 3     # 前区命中阈值
     back-hit-threshold: 1      # 后区命中阈值
     initial-weight: 0.2        # 初始权重
+
+# AI 配置（使用 ai-config.properties 中的默认值）
