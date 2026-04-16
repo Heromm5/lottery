@@ -66,5 +66,8 @@ export const aiApi = {
     request.post<AiReportResponse>('/ai/report', data),
 
   getAnomalyAlerts: (params?: { severity?: string; acknowledged?: boolean }) =>
-    request.get<AiAnomalyAlert[]>('/ai/anomaly-alerts', { params })
+    request.get<AiAnomalyAlert[]>('/ai/anomaly-alerts', { params }),
+
+  acknowledgeAlert: (id: string) =>
+    request.post<void>(`/ai/anomaly-alerts/${id}/acknowledge`)
 }

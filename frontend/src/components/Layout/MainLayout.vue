@@ -101,7 +101,8 @@ import {
   Histogram,
   Minus,
   DataAnalysis,
-  Connection
+  Connection,
+  Warning
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -130,7 +131,15 @@ const menuItems: NavItem[] = [
   },
   { name: '验证中心', path: '/verification', icon: Check },
   { name: '模型学习', path: '/learning', icon: Setting },
-  { name: '数据管理', path: '/lottery', icon: Folder }
+  { name: '数据管理', path: '/lottery', icon: Folder },
+  { 
+    name: 'AI 增强', 
+    path: '/ai', 
+    icon: MagicStick,
+    children: [
+      { name: '异常监控', path: '/ai/anomaly-monitor', icon: Warning }
+    ]
+  }
 ]
 
 const currentPageTitle = computed(() => {
@@ -141,6 +150,7 @@ const currentParent = computed(() => {
   const path = route.path
   if (path.startsWith('/analysis')) return '数据分析'
   if (path.startsWith('/prediction')) return '智能预测'
+  if (path.startsWith('/ai')) return 'AI 增强'
   return ''
 })
 

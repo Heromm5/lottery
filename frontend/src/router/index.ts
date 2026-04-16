@@ -66,6 +66,19 @@ const routes: RouteRecordRaw[] = [
     name: 'Lottery',
     component: () => import('@/views/lottery/index.vue'),
     meta: { title: '数据管理', icon: 'Folder' }
+  },
+  {
+    path: '/ai',
+    name: 'AI',
+    meta: { title: 'AI 增强', icon: 'MagicStick' },
+    children: [
+      {
+        path: 'anomaly-monitor',
+        name: 'AnomalyMonitor',
+        component: () => import('@/views/ai/AnomalyMonitor.vue'),
+        meta: { title: '异常监控', icon: 'Warning' }
+      }
+    ]
   }
 ]
 
