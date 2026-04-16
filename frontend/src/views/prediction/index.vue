@@ -279,6 +279,10 @@
           </div>
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="AI 预测" name="ai">
+        <AiPredictTab />
+      </el-tab-pane>
     </el-tabs>
 
     <!-- 说明 -->
@@ -304,6 +308,7 @@ import {
 } from '@element-plus/icons-vue'
 import { predictionApi } from '@/api'
 import type { PredictionResult } from '@/types'
+import AiPredictTab from './AiPredictTab.vue'
 
 const mainTab = ref<'random' | 'pinned'>('random')
 
