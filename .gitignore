@@ -65,3 +65,7 @@ application-local.yml
 **/__pycache__/
 *.py[cod]
 *$py.class
+
+### Worktrees ###
+.worktrees/
+worktrees/
