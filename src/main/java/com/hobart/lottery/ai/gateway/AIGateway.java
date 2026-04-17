@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 /**
  * AI 网关主类
- * 统一管理限流、缓存、熔断逻辑,提供对 Claude/Kimi/GPT-4o 的稳定调用
+ * 统一管理限流、缓存、熔断逻辑,提供对 NVIDIA (GLM-5)、Claude、Kimi、GPT-4o 的稳定调用
  */
 @Service
 public class AIGateway {
@@ -19,8 +19,10 @@ public class AIGateway {
     private final RateLimiter rateLimiter;
     private final ResponseCache responseCache;
     private final Map<AiProvider, CircuitBreaker> breakers;
+    private final AiProperties properties;
 
     public AIGateway(AiProperties properties) {
+        this.properties = properties;
         // 初始化限流器
         this.rateLimiter = new RateLimiter(
             properties.getRateLimit().getRequestsPerMinute(),
@@ -38,6 +40,34 @@ public class AIGateway {
         for (AiProvider provider : AiProvider.values()) {
             breakers.put(provider, new CircuitBreaker(5, Duration.ofMinutes(1)));
         }
+    }
+
+    /**
+     * 获取默认的 AI 服务商 (NVIDIA GLM-5)
+     */
+    public AiProvider getDefaultProvider() {
+        return AiProvider.NVIDIA;
+    }
+
+    /**
+     * 获取 NVIDIA 配置 (供调用方构建 HTTP 请求)
+     */
+    public AiProperties.NvidiaConfig getNvidiaConfig() {
+        return properties.getNvidia();
+    }
+
+    /**
+     * 获取 Claude 配置
+     */
+    public AiProperties.ClaudeConfig getClaudeConfig() {
+        return properties.getClaude();
+    }
+
+    /**
+     * 获取 Kimi 配置
+     */
+    public AiProperties.KimiConfig getKimiConfig() {
+        return properties.getKimi();
     }
 
     /**

@@ -2,17 +2,20 @@ package com.hobart.lottery.ai.gateway;
 
 /**
  * AI 服务商枚举
- * 支持 Claude、Kimi、GPT-4o 三大 AI 服务商
+ * 支持 NVIDIA (GLM-5)、Claude、Kimi、GPT-4o 等 AI 服务商
  */
 public enum AiProvider {
-    /** Anthropic Claude */
-    CLAUDE("claude", AiProviderType.ANTHROPIC),
-    
-    /** 月之暗面 Kimi */
-    KIMI("kimi", AiProviderType.OPENAI_COMPATIBLE),
-    
-    /** OpenAI GPT-4o */
-    GPT4O("gpt4o", AiProviderType.OPENAI);
+/** NVIDIA GLM-5 (主要使用) */
+NVIDIA("nvidia", AiProviderType.OPENAI_COMPATIBLE),
+
+/** Anthropic Claude */
+CLAUDE("claude", AiProviderType.ANTHROPIC),
+
+/** 月之暗面 Kimi */
+KIMI("kimi", AiProviderType.OPENAI_COMPATIBLE),
+
+/** OpenAI GPT-4o */
+GPT4O("gpt4o", AiProviderType.OPENAI);
 
     private final String code;
     private final AiProviderType type;

@@ -6,12 +6,15 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * AI 配置属性类
- * 支持 Claude、Kimi、GPT-4o 三大 AI 服务商的配置
+ * 支持 NVIDIA (GLM-5)、Claude、Kimi、GPT-4o 等 AI 服务商的配置
  */
 @Configuration
 @ConfigurationProperties(prefix = "ai")
 @Data
 public class AiProperties {
+
+    /** NVIDIA GLM-5 配置 (主要使用) */
+    private NvidiaConfig nvidia = new NvidiaConfig();
 
     /** Claude 配置 */
     private ClaudeConfig claude = new ClaudeConfig();
@@ -27,6 +30,24 @@ public class AiProperties {
 
     /** 缓存配置 */
     private CacheConfig cache = new CacheConfig();
+
+    /**
+     * NVIDIA API 配置 (OpenAI 兼容)
+     */
+    @Data
+    public static class NvidiaConfig {
+        /** API 密钥 */
+        private String apiKey = "";
+
+        /** API 基础 URL */
+        private String baseUrl = "https://integrate.api.nvidia.com/v1";
+
+        /** 模型名称 */
+        private String model = "GLM-5";
+
+        /** 超时时间（毫秒） */
+        private int timeout = 60000;
+    }
 
     /**
      * Claude API 配置
