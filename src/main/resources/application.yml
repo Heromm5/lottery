@@ -55,4 +55,10 @@ lottery:
     back-hit-threshold: 1      # 后区命中阈值
     initial-weight: 0.2        # 初始权重
 
-# AI 配置（使用 ai-config.properties 中的默认值）
+# AI 配置
+ai:
+  nvidia:
+    api-key: 
+    base-url: https://integrate.api.nvidia.com/v1
+    model: z-ai/glm5
+    timeout: 60000
